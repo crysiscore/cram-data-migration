@@ -53,30 +53,59 @@ composePatient <- function(df, index){
                          "}]" ) 
      
    }
+   
+  
    #****************************** other attributes
      uuid <- patient_admissions$uuid[index]
      gender <- patient_admissions$sexo[index]
      age <- patient_admissions$idade[index]
      nid_cram <-patient_admissions$nid[index]
      nid_cram_identifier_type="8746cc9e-b2d3-4b0b-83a6-580e868e373f"
-     default_location ="0dc2d9c3-91ff-4a87-b2d1-84d2955bd9cb"
+     telephone <- patient_admissions$telefone[index]
+     attribute_telephone_uuid <- "e2e3fd64-1d5f-11e0-b929-000c29ad1d07"
      
-      person <- paste0(" \"person\": { \"uuid\":\"", uuid,"\"," ,
-                                     "\"age\":", age," ," ,  
-                                     "\"gender\":\"", gender,"\" ," ,
-                                       array_names,
-                                       addresses,
-                                     "} }" ) 
+     if(!is.na(telephone)){
+       attributes <- paste0("\"attributes\": [{\"attributeType\":\"",attribute_telephone_uuid ,"\"," ,
+                                               "\"value\":\"", telephone, "\"" , " }]" )   
+       
+       person <- paste0(" \"person\": { \"uuid\":\"", uuid,"\"," ,
+                        "\"age\":", age," ," ,  
+                        "\"gender\":\"", gender,"\" ," ,
+                        array_names,
+                        addresses, ",",
+                        attributes,
+                        "} }" ) 
+       
+       
+       #TODO - mudar nidcram por patient_id 
+       pat<- paste0( "{\"display\":\"",nid_cram ," - ",display,"\"," ,
+                     "\"identifiers\": [{\"identifier\": \"",    nid_cram,"\",",
+                     "\"identifierType\":\"",nid_cram_identifier_type,"\"," ,  
+                     "\"location\":\"",      default_location,"\"," ,
+                     "\"preferred\": true", "}]," ) 
+       
+     } else {
+       
+       
+       person <- paste0(" \"person\": { \"uuid\":\"", uuid,"\"," ,
+                        "\"age\":", age," ," ,  
+                        "\"gender\":\"", gender,"\" ," ,
+                        array_names,
+                        addresses,
+                        "} }" ) 
+       
+       
+       #TODO - mudar nidcram por patient_id 
+       pat<- paste0( "{\"display\":\"",nid_cram ," - ",display,"\"," ,
+                     "\"identifiers\": [{\"identifier\": \"",    nid_cram,"\",",
+                     "\"identifierType\":\"",nid_cram_identifier_type,"\"," ,  
+                     "\"location\":\"",      default_location,"\"," ,
+                     "\"preferred\": true", "}]," ) 
+       
+       
+     }
 
-
-    
-     #TODO - mudar nidcram por patient_id 
-     pat<- paste0( "{\"display\":\"",nid_cram ," - ",display,"\"," ,
-                   "\"identifiers\": [{\"identifier\": \"",    nid_cram,"\",",
-                   "\"identifierType\":\"",nid_cram_identifier_type,"\"," ,  
-                   "\"location\":\"",      default_location,"\"," ,
-                   "\"preferred\": true", "}]," ) 
-                      
+  
     json_patient <- str_c(pat,person)
    
     json_patient
@@ -163,4 +192,7 @@ apiCreateOpenmrsPatient <- function(patient){
   }
 }
 
+#' not_all_na () -> Drop all NA columns in df
+#' 
+not_all_na <- function(x) {!all(is.na(x))}
 
