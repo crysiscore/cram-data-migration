@@ -1,7 +1,3 @@
-# 1 Lista de todos os pacientes activos para cruzar com o ficheiro das admissoe#
-
-#2 extrair lista de pacientes sem idade ou data de nascimeno
-wout_birthdate <- patient_admissions %>% filter(is.na(idade) )
-patient_admissions %>% filter(is.na(nid) )
-
-
+# 1 quanto tempo levam os pacientes para chegar ao CRAM depois de serem transferidos
+# RECOMENDACOES - REGIMES ESPECIFICOS DO CRAM NAO ESTAO PADRONIZADOS NO OPENMRS
+# Perguntas - variavel data inicio tarv no export long

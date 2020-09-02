@@ -11,10 +11,13 @@ setwd(wd)
 
 #Global variables
 default_location ="0dc2d9c3-91ff-4a87-b2d1-84d2955bd9cb"
-
+generic_provider ="7013d271-1bc2-4a50-bed6-8932044bc18f"
 
 patient_admissions <- readxl::read_xls(path = 'data/cram_admissions.xls',sheet = 1,col_names = TRUE)
 patient_visits <- read.csv(file = 'data/patientlong.csv',stringsAsFactors = FALSE)
+
+# filtrar os activos
+patient_visits <- filter(patient_visits, outcome=="on treatment")
 
 
 #remover todas colunas vazias do df das visitas
@@ -61,6 +64,82 @@ patient_visits$arv <- gsub( pattern = 'NVPp',  replacement = 'NVP',x =  patient_
 patient_visits$arv <- gsub( pattern = 'D4Tp',  replacement = 'D4T',     x =  patient_visits$arv)
 patient_visits$arv <- gsub( pattern = 'ABCp',  replacement = 'ABC', x =  patient_visits$arv)
 patient_visits$arv <- gsub( pattern = 'NVPp',  replacement = 'NVP',     x =  patient_visits$arv)
+
+
+patient_visits$arv[which(patient_visits$arv=="3TC+ABC+DRV+RAL+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG+TDF")] <- "TDF+3TC+DTG"
+patient_visits$arv[which(patient_visits$arv=="3TC+ATZ/r+TDF")] <- "TDF+3TC+ATZ/r"
+patient_visits$arv[which(patient_visits$arv=="3TC+DRV+RAL+RTV+TDF")] <- "TDF+3TC+RAL+DRV/r"
+patient_visits$arv[which(patient_visits$arv=="3TC+LPV/r+TDF")] <- "TDF+3TC+LPV/r"
+patient_visits$arv[which(patient_visits$arv=="3TC+ABC+ATZ/r")] <- "ABC+3TC+ATV/r"
+patient_visits$arv[which(patient_visits$arv=="3TC+EFV+TDF")] <- "TDF+3TC+EFV"
+patient_visits$arv[which(patient_visits$arv=="3TC+ATZ/r+DRV+RAL+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+AZT+NVP")] <- "AZT+3TC+NVP"
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG+AZT")] <- "AZT+3TC+DTG"
+patient_visits$arv[which(patient_visits$arv=="3TC+ATZ+RAL+RTV+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ABC+ATZ/r+AZT")] <- "AZT+3TC+ABC"
+patient_visits$arv[which(patient_visits$arv=="3TC+AZT+DRV+RAL+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ATZ/r+AZT")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="DRV+RAL+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG+ABC")] <- "ABC+3TC+DTG"
+
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG+ATZ/r+AZT")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="DRV+RAL+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+DRV+RAL+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="DRV+ETV+RAL+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ATZ+TDF")] <- ""
+patient_visits$arv[which(patient_visits$arv=="3TC+ATZ+TDF")] <- "TDF+3TC+ATV/r"
+patient_visits$arv[which(patient_visits$arv=="3TC+AZT+EFV")] <- "AZT+3TC+EFV"
+patient_visits$arv[which(patient_visits$arv=="ATZ/r+RAL")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ABC+EFV")] <- "ABC+3TC+EFV"
+patient_visits$arv[which(patient_visits$arv=="3TC+AZT+LPV/r")] <- "AZT+3TC+LPV/r"
+patient_visits$arv[which(patient_visits$arv=="3TC+ABC+ATZ/r+RAL")] <- "ABC+3TC+ATV/r+RAL"
+patient_visits$arv[which(patient_visits$arv=="3TC+ATZ/r+RAL")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+DRV+RTV+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ABC+DRV+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ATZ/r+RTV+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG+ABC+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ABC+LPV/r")] <- "ABC+3TC+LPV/r"
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+LPV/r+RTV+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG+EFV")] <- "TDF+3TC+DTG"
+patient_visits$arv[which(patient_visits$arv=="3TC+AZT+LPV/r+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ABC+LPV/r+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ATZ/r+LPV/r")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ABC+ATZ/r+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ATZ+RTV+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ABC+RAL")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="ABC+DRV+RAL+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="ABC+ATZ/r+AZT")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ATZ/r+RTV")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ATZ/r+LPV/r+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ABC+ATZ")] <- "AB"
+patient_visits$arv[which(patient_visits$arv=="3TC+ABC+ATZ")] <- "ABC+3TC+ATV/r"
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG+ABC+RAL")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="ATZ/r+AZT+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ABC+NVP")] <- "ABC+3TC+NVP"
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG+DRV+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG+ATZ")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG+EFV+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG+DTG+AZT")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="DTG+AZT+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="DTG+AZT+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+DTG+DTG+TDF")] <- "TDF+3TC+DTG"
+patient_visits$arv[which(patient_visits$arv=="DTG+EFV+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+AZT+RAL")] <- "AZT+3TC+RAL"
+
+patient_visits$arv[which(patient_visits$arv=="AZT+EFV+LPV/r")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="DTG+FDC7 (AZT-3TC)")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="3TC+ATZ/r+RAL+TDF")] <- "TDF+3TC+ATV/r+RAL"
+patient_visits$arv[which(patient_visits$arv=="DTG+EFV+TDF")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="DTG+EFV+TDF")] <- "OUTRO"
+
+patient_visits$arv[which(grepl(pattern = "AA1",x =patient_visits$arv,ignore.case = TRUE ))] <- "OUTRO"
+patient_visits$arv[which(grepl(pattern = "D4T",x =patient_visits$arv,ignore.case = TRUE ))] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="AB")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv==".")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="")] <- "OUTRO"
 
 
 
