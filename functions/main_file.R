@@ -3,17 +3,23 @@ library(stringr)
 library(stringi)
 library(dplyr)
 library(tibble)
+library(plyr)
+library(properties)
+library(httr)
 library(uuid)
+
+
 #Set working dir
 wd <- '~/Git/cram/'
 setwd(wd)
 
+# Carrega as funcoes generic
+source('functions/generic_func.R')
 
 #Global variables
 default_location ="0dc2d9c3-91ff-4a87-b2d1-84d2955bd9cb"
 generic_provider ="7013d271-1bc2-4a50-bed6-8932044bc18f"
 
-patient_admissions <- readxl::read_xls(path = 'data/cram_admissions.xls',sheet = 1,col_names = TRUE)
 patient_visits <- read.csv(file = 'data/patientlong.csv',stringsAsFactors = FALSE)
 
 # filtrar os activos
@@ -34,8 +40,8 @@ patient_visits$entry <- iconv(patient_visits$entry, "latin1", "UTF-8",sub='')
 # converter datas string para datas
 patient_visits$datvisit <- as.Date(patient_visits$datvisit,"%d%B%Y")
 patient_visits$datnext  <- as.Date(patient_visits$datnext, "%d%B%Y")
-patient_visits$birth    <- as.Date(patient_visits$birth,   "%d%B%Y")
 patient_visits$hivdate    <- as.Date(patient_visits$hivdate,   "%d%B%Y")
+
 
 # uniformizar TESTE HIV
 patient_visits$hivtest [which(patient_visits$hivtest=="Serology")] <- "TR"
@@ -143,14 +149,46 @@ patient_visits$arv[which(patient_visits$arv=="")] <- "OUTRO"
 
 
 
+# Patient Admissions
 
 
+
+patient_admissions <- readxl::read_xls(path = 'data/cram_admissions.xls',sheet = 1,col_names = TRUE)
+
+nids_activos <- unique(patient_visits$nid)
+
+patient_admissions <- patient_admissions %>% filter(nid %in% nids_activos )
 
 # separar os nomes (given_name, middle_name,family_name)
-patient_admissions <- add_column(patient_admissions, .after = "nome_apelido",given_name="",middle_name="",family_name="" )
+patient_admissions <- add_column(patient_admissions, .after = "nome_apelido",given_name="",middle_name="",family_name="" , birthdate="")
+patient_admissions <- add_column(patient_admissions,.after = "idade",age="",datbirth="")
+
+
+# preenche a data de bascimento apartir de patient_visists
+
+for (v in 1:nrow(patient_admissions)) {
+   
+   nid_pat <- patient_admissions$nid[v]
+   pat <- filter(patient_visits, nid==nid_pat) %>% arrange(datvisit) 
+   b_date <- pat$birth[1]
+   agev <-pat$agev[1]
+   datb <- pat$datbirth[1]
+   patient_admissions$birthdate[v] <- b_date
+   patient_admissions$age[v] <-agev
+   patient_admissions$datbirth[v] <-datb
+   
+}
+patient_visits$birth    <- as.Date(patient_visits$birth,   "%d%B%Y")
+patient_visits$datbirth    <- as.Date(patient_visits$datbirth,   "%d%B%Y")
+patient_admissions$birthdate <- as.Date(patient_admissions$birthdate ,   "%d%B%Y")
+patient_admissions$datbirth <- as.Date(patient_admissions$datbirth ,   "%d%B%Y")
 
 # excluir pacientes com nomes vazios (temp)
-#patient_admissions <- filter(patient_admissions,!is.na(nome_apelido))
+wout_names <- filter(patient_admissions,is.na(nome_apelido))
+wout_admissions <-  filter(patient_visits,! nid %in% patient_admissions$nid )  %>% select(keypatie,origin,prof,nid,gender,age,birth,agedate,hiv,anadate,outcome)
+wout_admissions <- wout_admissions[!duplicated(wout_admissions$nid),]
+writexl::write_xlsx(x = wout_names,path = 'data/pacientes_sem_nomes.xls')
+writexl::write_xlsx(x = wout_admissions,path = 'data/pacientes_activos_nao_existe_admissao.xls')
 
 for (v in 1:nrow(patient_admissions)) {
    name <- patient_admissions$nome_apelido[v]

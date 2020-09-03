@@ -18,9 +18,11 @@ composeFichaResumo <- function(df.visits,pat.nid){
   us_proveniencia <- pat$entry[1]
   em_tarv <- "yes"
   data_inicio_tarv <- pat$hivdate[1]
-  #TODO estadio oms- pendente da descoficacao das variaveis who
-  estadio_oms <-""
-  provider <-generic_provider
+  #TODO estadio OMS: 0 - unknown
+  estadio_oms <- pat$whop[1]
+  provider <- generic_provider
+  regime <- pat$arv[1]
+  cd4_nr <- pat$lccd4[1]
   
   
-}
+  }

@@ -1,12 +1,3 @@
-library(dplyr)
-library(plyr)
-library(stringi)
-library(tibble)
-library(properties)
-library(httr)
-library(stringr)
-library(uuid)
-
 
 
 #' composePatient ->  criar uma string json com informacao para cirar um paciente no openmrs
@@ -59,6 +50,7 @@ composePatient <- function(df, index){
      uuid <- patient_admissions$uuid[index]
      gender <- patient_admissions$sexo[index]
      age <- patient_admissions$idade[index]
+     birth_date <- as.character(patient_admissions$datbirth[index])
      nid_cram <-patient_admissions$nid[index]
      nid_cram_identifier_type="8746cc9e-b2d3-4b0b-83a6-580e868e373f"
      telephone <- patient_admissions$telefone[index]
@@ -69,7 +61,7 @@ composePatient <- function(df, index){
                                                "\"value\":\"", telephone, "\"" , " }]" )   
        
        person <- paste0(" \"person\": { \"uuid\":\"", uuid,"\"," ,
-                        "\"age\":", age," ," ,  
+                        "\"birthdate\":\"", birth_date,"\" ," ,
                         "\"gender\":\"", gender,"\" ," ,
                         array_names,
                         addresses, ",",
@@ -88,7 +80,7 @@ composePatient <- function(df, index){
        
        
        person <- paste0(" \"person\": { \"uuid\":\"", uuid,"\"," ,
-                        "\"age\":", age," ," ,  
+                        "\"birthdate\":\"", birth_date,"\" ," ,
                         "\"gender\":\"", gender,"\" ," ,
                         array_names,
                         addresses,
