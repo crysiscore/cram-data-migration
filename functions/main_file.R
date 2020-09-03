@@ -15,10 +15,7 @@ setwd(wd)
 
 # Carrega as funcoes generic
 source('functions/generic_func.R')
-
-#Global variables
-default_location ="0dc2d9c3-91ff-4a87-b2d1-84d2955bd9cb"
-generic_provider ="7013d271-1bc2-4a50-bed6-8932044bc18f"
+source('concepts.R')
 
 patient_visits <- read.csv(file = 'data/patientlong.csv',stringsAsFactors = FALSE)
 
@@ -29,9 +26,12 @@ patient_visits <- filter(patient_visits, outcome=="on treatment")
 #remover todas colunas vazias do df das visitas
 patient_visits <- patient_visits %>% select_if(not_all_na)
 
-# corrigir problema com caracteres especiais na variavel origin, entry
+# corrigir problema com caracteres especiais na variavel origin, entry, prof
 Encoding(patient_visits$origin) <- "latin1"
 patient_visits$origin <- iconv(patient_visits$origin, "latin1", "UTF-8",sub='')
+
+Encoding(patient_visits$prof) <- "latin1"
+patient_visits$prof <- iconv(patient_visits$prof, "latin1", "UTF-8",sub='')
 
 Encoding(patient_visits$entry) <- "latin1"
 patient_visits$entry <- iconv(patient_visits$entry, "latin1", "UTF-8",sub='')
