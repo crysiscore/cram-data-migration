@@ -1,3 +1,7 @@
-# 1 quanto tempo levam os pacientes para chegar ao CRAM depois de serem transferidos
+# ERROS
+# 2 - pacientes activos com nids duplicados
+ pacientes_nao_criados <- filter(df_patient_logs, message != "sucess")
+# fichas-resumo_nao_criadas
+ fichas_resumo_nao_criadas <- filter(df_ficha_resumo_logs,message != "sucess")
+ 
 # RECOMENDACOES - REGIMES ESPECIFICOS DO CRAM NAO ESTAO PADRONIZADOS NO OPENMRS
-# Perguntas - variavel data inicio tarv no export long
