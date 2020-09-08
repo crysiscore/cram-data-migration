@@ -19,7 +19,7 @@ source('concepts.R')
 source('functions/api_functions.R')
 source('functions/compose_functions.R')
 
-
+#import fuchia long dataset
 patient_visits <- read.csv(file = 'data/patientlong.csv',stringsAsFactors = FALSE)
 
 #Filtrar os activos
@@ -32,12 +32,8 @@ patient_visits <- patient_visits %>% select_if(not_all_na)
 source('bug_fixes.R')
 
 
-
 # Patient Admissions
-
-
 patient_admissions <- readxl::read_xls(path = 'data/cram_admissions.xls',sheet = 1,col_names = TRUE)
-
 nids_activos <- unique(patient_visits$nid)
 patient_admissions <- patient_admissions %>% filter(nid %in% nids_activos )
 
@@ -176,7 +172,7 @@ for (i in 92:nrow(patient_admissions) ) {
 
 # Create ficha resumo patients
 created_patients <- patient_admissions %>% filter(openmrs_status!="")  
-
+# Migrate ficha resumo
 df_ficha_resumo_logs <- createLogsDataFrame(nrow(created_patients))
 for (i in 924:nrow(created_patients) ) {
    

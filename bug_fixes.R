@@ -117,6 +117,10 @@ patient_visits$arv[which(patient_visits$arv=="DTG+EFV+TDF")] <- "OUTRO"
 
 patient_visits$arv[which(grepl(pattern = "AA1",x =patient_visits$arv,ignore.case = TRUE ))] <- "OUTRO"
 patient_visits$arv[which(grepl(pattern = "D4T",x =patient_visits$arv,ignore.case = TRUE ))] <- "OUTRO"
-patient_visits$arv[which(patient_visits$arv=="AB")] <- "OUTRO"
-patient_visits$arv[which(patient_visits$arv==".")] <- "OUTRO"
-patient_visits$arv[which(patient_visits$arv=="")] <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="AB")]  <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv==".")]   <- "OUTRO"
+patient_visits$arv[which(patient_visits$arv=="")]    <- "OUTRO"
+
+
+
+
