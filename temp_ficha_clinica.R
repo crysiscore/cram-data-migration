@@ -1,15 +1,17 @@
 #' composeFichaClinica ->  criar uma string json com informacao para criar a ficha clinica de um paciente no openmrs
-#' @param   pat.nid  nid do cram
+#' @param   df.visits  visita
+#' @param  pat.uuid uuid do paciente no openmrs
 #' @examples 
-#' ficha_resumo  <- composeFichaResumo(df,1234)
+#' ficha_resumo  <- composeFichaClinica(df,123e2354-3245-2325d-23sdvdfs3)
 #' 
 
 
-composeFichaResumo <- function(df.visits,pat.nid,openmrs.pat.uuid) {
+composeFichaClinica<- function(df.visits,openmrs.pat.uuid) {
   
-  pat <- filter(df.visits, nid==pat.nid) %>% arrange(datvisit)
-  
-  
+  index=1 # 1 line = 1 visit
+  pat <- df.visits
+  pat.nid <- df.visits$nid[index]
+ 
   if(nrow(pat)!=0){
     
     #visit_atributes
@@ -213,19 +215,23 @@ composeFichaResumo <- function(df.visits,pat.nid,openmrs.pat.uuid) {
     
     # Linhas terapeuticas
     # 
-      tmp_linha <-checkLinhaTerapeutica(pat$nid[index])
-      if(length(t)>1){ # primeira linha
+      tmp_linha <- checkLinhaTerapeutica(pat$nid[index])
+      if(length(tmp_linha)==1){ # primeira linha
       
           obs_linhat  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
                              "\"concept\":\"", concept_fc_linhat,"\"," ,
                              "\"obsDatetime\":\"", obs_date_time,"\"," ,
                              "\"value\":\"", tmp_linha,"\"" ,
                              "}")
-      }
-      else{
+      } else if (is.na(tmp_linha[2])){
         
+        obs_linhat  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
+                              "\"concept\":\"", concept_fc_linhat,"\"," ,
+                              "\"obsDatetime\":\"", obs_date_time,"\"," ,
+                              "\"value\":\"", tmp_linha[1],"\"" ,
+                              "}")
         
-        if(as.Date(tmp_linha[2]) < as.Date(visit_date)){
+      }  else if(as.Date(tmp_linha[2]) < as.Date(visit_date)){
           
           obs_linhat  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
                                 "\"concept\":\"", concept_fc_linhat,"\"," ,
@@ -233,7 +239,7 @@ composeFichaResumo <- function(df.visits,pat.nid,openmrs.pat.uuid) {
                                 "\"value\":\"", value_coded_primeira_linha,"\"" ,
                                 "}")
           
-        } else {
+        }   else {
           
           obs_linhat  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
                                 "\"concept\":\"", concept_fc_linhat,"\"," ,
@@ -242,14 +248,17 @@ composeFichaResumo <- function(df.visits,pat.nid,openmrs.pat.uuid) {
                                 "}")
           
         }
-      }
       
-  # TB info
+      
+  # TB estado (Inicio/Continua/Fim)
+      
      tratamento_tb <- checkTuberculoseInfo(pat.nid,visit_date,next_visit_date)
+     
      if(is.na(tratamento_tb) ){
       obs_tratamento_tb <- ""
        
-     } else {
+     }
+     else {
        
        obs_tratamento_tb  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
                             "\"concept\":\"", concept_fc_tratamento_tb,"\"," ,
@@ -258,7 +267,41 @@ composeFichaResumo <- function(df.visits,pat.nid,openmrs.pat.uuid) {
                             "}")
        
      }
-      
+     
+  # TB LAM
+     lab_tb_lam <- check_lab_tb_lam(pat.nid,visit_date,next_visit_date)
+     if(is.na(lab_tb_lam) ){
+       obs_lab_tb_lam <- ""
+       
+     } 
+     else {
+       
+       obs_lab_tb_lam  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
+                                    "\"concept\":\"", concept_fc_lab_lam,"\"," ,
+                                    "\"obsDatetime\":\"", obs_date_time,"\"," ,
+                                    "\"value\":\"", lab_tb_lam,"\"" ,
+                                    "}")
+       
+     }
+  
+        # TB CRAG
+     lab_tb_crag <- check_lab_tb_crag(pat.nid,visit_date,next_visit_date)
+     if(is.na(lab_tb_crag) ){
+       obs_lab_tb_crag <- ""
+       
+     }
+     else {
+       
+       obs_lab_tb_crag  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
+                                 "\"concept\":\"", concept_fc_lab_crag,"\"," ,
+                                 "\"obsDatetime\":\"", obs_date_time,"\"," ,
+                                 "\"value\":\"", lab_tb_crag,"\"" ,
+                                 "}")
+       
+     }  
+     #
+     
+     
     # these encounter details and obs are never empty 
 
      if(age <15){
@@ -278,7 +321,9 @@ composeFichaResumo <- function(df.visits,pat.nid,openmrs.pat.uuid) {
        
        
        joined_encounter_obs <- paste0(encounter_details_ped,obs_carga_viral,obs_cd4,obs_estadio,
-                                      obs_hemoglb,obs_creat,obs_alt,obs_prof_ctz,obs_prof_ihn,obs_weight,obs_linhat,obs_tratamento_tb,obs_height, obs_regime)
+                                      obs_hemoglb,obs_creat,obs_alt,obs_prof_ctz,obs_prof_ihn,obs_weight,
+                                      obs_linhat,obs_tratamento_tb,
+                                      obs_lab_tb_crag,obs_lab_tb_lam,obs_height, obs_regime)
        
        encounter <- paste0("{ ", joined_encounter_obs, " ] }")
        encounter
@@ -300,7 +345,9 @@ composeFichaResumo <- function(df.visits,pat.nid,openmrs.pat.uuid) {
        
        
        joined_encounter_obs <- paste0(encounter_details_adult,obs_carga_viral,obs_cd4,obs_estadio,
-                                      obs_hemoglb,obs_creat,obs_alt,obs_prof_ctz,obs_prof_ihn,obs_weight,obs_linhat,obs_tratamento_tb,obs_height, obs_regime)
+                                      obs_hemoglb,obs_creat,obs_alt,obs_prof_ctz,obs_prof_ihn,obs_weight,
+                                      obs_linhat,obs_tratamento_tb,
+                                      obs_lab_tb_crag,obs_lab_tb_lam,obs_height, obs_regime)
        
        encounter <- paste0("{ ", joined_encounter_obs, " ] }")
        encounter

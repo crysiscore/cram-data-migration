@@ -7,7 +7,7 @@ library(plyr)
 library(properties)
 library(httr)
 library(uuid)
-
+library( jsonlite)
 
 #Set working dir
 wd <- '~/Git/cram/'
@@ -22,11 +22,39 @@ source('functions/compose_functions.R')
 #import fuchia long dataset
 patient_visits <- read.csv(file = 'data/patientlong.csv',stringsAsFactors = FALSE)
 
+
+#Merge 
 #Filtrar os activos
 patient_visits <- filter(patient_visits, outcome=="on treatment")
 
 #remover todas colunas vazias do df das visitas
 patient_visits <- patient_visits %>% select_if(not_all_na)
+patient_visits$nid <- as.numeric(patient_visits$nid)
+#import tb data
+tb_patient <- readxl::read_xlsx(path = 'data/tb_export.xlsx',col_names = TRUE,progress = TRUE)
+tb_patient$nid <- as.numeric(tb_patient$nid)
+tb_patient <- filter(tb_patient, nid %in% patient_visits$nid)
+
+
+#import free variables
+patient_free_var <- readxl::read_xls(path = 'data/patient.xls',col_names = TRUE,na = ".")
+patient_free_var$nid <- as.numeric(patient_free_var$nid)
+patient_free_var <- filter(patient_free_var, nid %in% patient_visits$nid)
+
+
+#import free variables crag , hepatite, lam, varfu6
+patient_free_var_hepatite <- readxl::read_xls(path = 'data/hepC.xls',col_names = TRUE,na = ".")
+patient_free_var_hepatite$nid <- as.numeric(patient_free_var_hepatite$nid)
+patient_free_var_hepatite <- filter(patient_free_var_hepatite, nid %in% patient_visits$nid)
+
+patient_free_var_lam<- readxl::read_xls(path = 'data/LAM.xls',col_names = TRUE,na = ".")
+patient_free_var_lam$nid <- as.numeric(patient_free_var_lam$nid)
+patient_free_var_lam <- filter(patient_free_var_lam, nid %in% patient_visits$nid)
+
+patient_free_var_crag<- readxl::read_xls(path = 'data/cripto.xls',col_names = TRUE,na = ".")
+patient_free_var_crag$nid <- as.numeric(patient_free_var_crag$nid)
+patient_free_var_crag <- filter(patient_free_var_crag, nid %in% patient_visits$nid)
+
 
 # corrigir algumas 
 source('bug_fixes.R')
@@ -35,7 +63,7 @@ source('bug_fixes.R')
 # Patient Admissions
 patient_admissions <- readxl::read_xls(path = 'data/cram_admissions.xls',sheet = 1,col_names = TRUE)
 nids_activos <- unique(patient_visits$nid)
-patient_admissions <- patient_admissions %>% filter(nid %in% nids_activos )
+patient_admissions <- patient_admissions %>% filter(nid %in% nids_activos)
 
 # separar os nomes (given_name, middle_name,family_name)
 patient_admissions <- add_column(patient_admissions, .after = "nome_apelido",given_name="",middle_name="",family_name="" , birthdate="")
@@ -138,10 +166,12 @@ for(i in 1:nrow(patient_admissions)){
 #Add status column
 patient_admissions$openmrs_status <- ""
 
+
+
 df_patient_logs  <- createLogsDataFrame(nrow(patient_admissions))
 
 # Migrate patients
-for (i in 92:nrow(patient_admissions) ) {
+for (i in 1:nrow(patient_admissions) ) {
   
    nid <- patient_visits$nid[i]
    uuid <- patient_admissions$uuid[i]
@@ -172,9 +202,10 @@ for (i in 92:nrow(patient_admissions) ) {
 
 # Create ficha resumo patients
 created_patients <- patient_admissions %>% filter(openmrs_status!="")  
+
 # Migrate ficha resumo
 df_ficha_resumo_logs <- createLogsDataFrame(nrow(created_patients))
-for (i in 924:nrow(created_patients) ) {
+for (i in 1:nrow(created_patients) ) {
    
    nid <- created_patients$nid[i]
    uuid <- created_patients$openmrs_status[i]
@@ -213,4 +244,49 @@ for (i in 924:nrow(created_patients) ) {
    
 }
 
+#Migrate fichas clinicas
+df_ficha_clinica_logs <- createLogsDataFrame(nrow(created_patients))
+df_ficha_clinica_logs <- df_ficha_clinica_logs[1:1,]
+df_ficha_clinica_logs_tmp  <- df_ficha_clinica_logs
 
+for (pat_index in 1:nrow(created_patients) ) {
+   
+   pat.nid <- created_patients$nid[pat_index]
+   uuid <- created_patients$openmrs_status[pat_index]
+   df_ficha_clinica_logs_tmp$nid[1] <- pat.nid
+   
+   df_visits <- filter(patient_visits, nid==pat.nid) %>% arrange(datvisit)
+   
+   for (vis_index in 1:nrow(df_visits) ) {
+      
+      visit <- df_visits[vis_index,]
+      json.ficha.clinica <- composeFichaClinica(df.visits = visit,openmrs.pat.uuid =uuid )
+      status <- apiCreateOpenmrsFichaClinica(json.ficha.clinica)
+      
+      if(as.integer(status$status_code)==201 | as.integer(status$status_code) == 204) {
+         df_ficha_clinica_logs_tmp$api_status_code[1] <- as.integer(status$status_code)
+         df_ficha_clinica_logs_tmp$message[1] <- "sucess"
+         df_ficha_clinica_logs <- bind_rows(df_ficha_clinica_logs,df_ficha_clinica_logs_tmp)
+         
+      } else {
+     
+         content <- content(status)
+         df_ficha_clinica_logs_tmp$api_status_code[1] <- as.integer(status$status_code)
+         df_ficha_clinica_logs_tmp$message[1] <- content$error$message
+         if(content$error$message=="Invalid Submission"){
+            df_ficha_clinica_logs_tmp$detail[1] <- content$error$globalErrors[[1]]$message
+         }else if(grepl(pattern = "Could not read JSON:",x = content$error$message,ignore.case = TRUE)){
+            
+            df_ficha_clinica_logs_tmp$detail[1] <- content$error$detail
+         }
+         else {
+            df_ficha_clinica_logs_tmp$detail[1] <- content$error$detail
+         }
+         
+         df_ficha_clinica_logs <- bind_rows(df_ficha_clinica_logs,df_ficha_clinica_logs_tmp)
+         
+      }
+      
+   }
+   
+}

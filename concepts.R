@@ -7,9 +7,23 @@ encounter_type_ficha_clinica_ped = 'e278fce4-1d5f-11e0-b929-000c29ad1d07'
 encounter_provider_role ='a0b03050-c99b-11e0-9572-0800200c9a66'
 form_ficha_resumo='05496c70-845c-40b1-9d28-070f67b3f7da'
 form_ficha_clinica='3c2d563a-5d37-4735-a125-d3943a3de30a'
-nid_cram_identifier_type= "f124e514-1771-4ca0-947c-dde3e3eb5b55"
+nid_cram_identifier_type= "33f83248-8501-434c-b1cb-a8450869cdcb"
 attribute_telephone_uuid <- "e2e3fd64-1d5f-11e0-b929-000c29ad1d07"
 
+#value codes
+value_coded_pcr                 <- 'e1d800dc-1d5f-11e0-b929-000c29ad1d07' 
+value_coded_tr                  <- 'e1d7f61e-1d5f-11e0-b929-000c29ad1d07'
+value_coded_yes                 <- 'e1d81b62-1d5f-11e0-b929-000c29ad1d07'
+value_coded_em_tarv             <- '7f3af436-5c3a-447c-9012-42bb314e03db'
+value_coded_inicia              <- 'e1d9ef28-1d5f-11e0-b929-000c29ad1d07'
+value_coded_continua            <- 'e1d9f036-1d5f-11e0-b929-000c29ad1d07'
+value_coded_fim                 <- 'e1d9facc-1d5f-11e0-b929-000c29ad1d07'
+value_coded_hivload_nivel_baixo <- 'e1da2812-1d5f-11e0-b929-000c29ad1d07'
+value_coded_primeira_linha      <- 'a6bbe1ac-5243-40e4-98cb-7d4a1467dfbe'
+value_coded_segunda_linha       <- '7f367983-9911-4f8c-bbfc-a85678801f64'
+value_coded_terceira_linha      <- 'ade7656f-0ce3-461b-b7d8-121932dcd6a2'
+value_coded_positivo            <- 'e1d47386-1d5f-11e0-b929-000c29ad1d07'
+value_coded_negativo            <- 'e1d446cc-1d5f-11e0-b929-000c29ad1d07'
 
 #Ficha Resumo concepts
 concept_fr_data_abertura_ficha  <- '68d65d0c-8fee-456b-8e95-caed990351e1'
@@ -17,10 +31,6 @@ concept_fr_profissao            <- 'e1dc07c2-1d5f-11e0-b929-000c29ad1d07'
 concept_fr_transferido_outra_us <- 'e1da7d3a-1d5f-11e0-b929-000c29ad1d07'
 concept_fr_us_provenciencia     <- 'e1da7d3a-1d5f-11e0-b929-000c29ad1d07'
 concept_fr_tipo_teste_hiv       <- 'c7ac119c-d59d-474d-8334-0c5bdd2e9863'
-value_coded_pcr                 <- 'e1d800dc-1d5f-11e0-b929-000c29ad1d07' 
-value_coded_tr                  <- 'e1d7f61e-1d5f-11e0-b929-000c29ad1d07'
-value_coded_yes                 <- 'e1d81b62-1d5f-11e0-b929-000c29ad1d07'
-value_coded_em_tarv             <- '7f3af436-5c3a-447c-9012-42bb314e03db'
 concept_fr_data_inicio_tarv     <- 'e1d8f690-1d5f-11e0-b929-000c29ad1d07'
 concept_fr_em_tarv              <- '4f139c0a-9843-4dc4-b3e5-5aa00812e605'
 concept_fr_regime               <- '62cd383d-165d-4b2a-96c1-a557d5c2bb6f'
@@ -28,16 +38,14 @@ concept_fr_estadio              <- 'e1e53c02-1d5f-11e0-b929-000c29ad1d07'
 concept_fr_cd4                  <- '596e9d7c-1a17-4177-b4fb-76341dbee9dd'
 concept_fr_carga_viral          <- 'e1d6247e-1d5f-11e0-b929-000c29ad1d07'
 
+
+
 #Ficha Clinica concepts
 concept_fc_weight               <- 'e1e2e826-1d5f-11e0-b929-000c29ad1d07'
 concept_fc_height               <- 'e1e2e934-1d5f-11e0-b929-000c29ad1d07'
 concept_fc_prof_inh             <- 'be4a76ca-662a-4c39-903b-71983f5f67c9'
 concept_fc_pof_ctz              <- '2616b3c9-9a99-4b9a-b673-10871f4a4c71'
-value_coded_inicia              <- 'e1d9ef28-1d5f-11e0-b929-000c29ad1d07'
-value_coded_continua            <- 'e1d9f036-1d5f-11e0-b929-000c29ad1d07'
-value_coded_fim                 <- 'e1d9facc-1d5f-11e0-b929-000c29ad1d07'
 concept_fc_hivload_qualitativa  <- 'e1da2704-1d5f-11e0-b929-000c29ad1d07'
-value_coded_hivload_nivel_baixo <- 'e1da2812-1d5f-11e0-b929-000c29ad1d07'
 concept_fc_cd4                  <- 'e1dd5ab4-1d5f-11e0-b929-000c29ad1d07'
 concept_fc_regime               <- 'e1d83d4a-1d5f-11e0-b929-000c29ad1d07'
 concept_fc_estadio_oms          <- 'e1e53c02-1d5f-11e0-b929-000c29ad1d07'
@@ -47,12 +55,12 @@ concept_fc_alt                  <- 'e1dd5942-1d5f-11e0-b929-000c29ad1d07'
 concept_fc_creat                <- 'e1d7e19c-1d5f-11e0-b929-000c29ad1d07'
 concept_fc_consul_prox          <- 'e1dae630-1d5f-11e0-b929-000c29ad1d07'
 concept_fc_linhat               <- 'fdff0637-b36f-4dce-90c7-fe9f1ec586f0' 
-value_coded_primeira_linha      <- 'a6bbe1ac-5243-40e4-98cb-7d4a1467dfbe'
-value_coded_segunda_linha       <- '7f367983-9911-4f8c-bbfc-a85678801f64'
-value_coded_terceira_linha      <- 'ade7656f-0ce3-461b-b7d8-121932dcd6a2'
 concept_fc_tratamento_tb        <- 'e1d9fbda-1d5f-11e0-b929-000c29ad1d07'
+concept_fc_lab_lam              <- 'ef139cb2-97c1-4c0f-9189-5e0711a45b8f'
+concept_fc_lab_crag             <- 'f3883e12-4883-461b-8440-2a02f3312a84'
+concept_fc_lab_hepatite         <- 'ef139cb2-97c1-4c0f-9189-5e0711a45b8f'
 
-# concept_fr_
+
 # concept_fr_
 # concept_fr_
 # concept_fr_

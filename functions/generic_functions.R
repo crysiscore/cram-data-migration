@@ -109,8 +109,6 @@ openmrsGetRegimeUuid <- function (regt) {
   return(arv)
 }
 
-
-
 #' createLogsDataFrame() -> cria um dataframe de logs para cada interaccao com API OpenMRS
 #' @param nrows  numero de linhas
 #' @return  df
@@ -146,11 +144,22 @@ checkLinhaTerapeutica <- function(pat.nid){
    
    if(!is.na(var_2_linha)) {
      
-     return(c(value_coded_segunda_linha,data_sec_linha))
+     if(is.na(data_sec_linha)){
+       write_xlsx(x =temp_free_var,path = paste0('errors/',nid,"_linhas_terapeuticas_sem_data.xlsx") )
+       return(c(value_coded_segunda_linha,data_sec_linha))
+     } else {
+       return(c(value_coded_segunda_linha,data_sec_linha))
+     }
+     
      
    } else if(!is.na(var_2_linha_opt)){
-     
+    
+      if(is.na(data_sec_linha)){
+       write_xlsx(x =temp_free_var,path = paste0('errors/',nid,"_linhas_terapeuticas_sem_data.xlsx") )
        return(c(value_coded_segunda_linha,data_sec_linha))
+     } else {
+       return(c(value_coded_segunda_linha,data_sec_linha))
+     }
      
    } else if(!is.na(data_ter_linha)){
      
@@ -170,9 +179,11 @@ checkLinhaTerapeutica <- function(pat.nid){
 
 #' checkTuberculoseInfo() -> Retorna informacao de tuberculose
 #' @param   pat.nid nid do paciente
-#' @return  vector com linha terap e a data de incio da linha: array [linhat,data_inicio]
+#' @param   data.consult data visita
+#' @param   data.prox.consul data proxima consulta
+#' @return  INICIO/CONTINUA/FIM
 #' @examples 
-#' linhatt  <- checkTuberculoseInfo(11113)
+#' tb  <- checkTuberculoseInfo(11113,"2016-12-09","2017-01-09")
 #' 
 #' 
 checkTuberculoseInfo <- function(pat.nid, data.consult,data.prox.consul){
@@ -193,8 +204,10 @@ checkTuberculoseInfo <- function(pat.nid, data.consult,data.prox.consul){
       if(as.Date(ttfrom) < as.Date("2020-01-21") & tb_type != "Not specified"){ # nao vamos registar (nao se conhece o desfecho)
         return(NA)
       } else if(as.Date(ttfrom) >= as.Date(data.consult) & as.Date(ttfrom) < as.Date(data.prox.consul)  ) {
+        print(paste0(pat.nid, " Inicia TB"))
         return(value_coded_inicia)
       } else if(as.Date(ttfrom) < as.Date(data.consult)){
+        print(paste0(pat.nid, " Continua TB"))
         return(value_coded_continua)
       } else if(as.Date(ttfrom) > as.Date(data.consult)){
         return(NA)
@@ -205,5 +218,143 @@ checkTuberculoseInfo <- function(pat.nid, data.consult,data.prox.consul){
     
   } else { return(NA) }
 
+  
+}
+
+
+
+
+#' check_lab_tb_lam() -> Retorna resultado de lam 
+#' @param   pat.nid nid do paciente
+#' @param   data.consult data visita
+#' @param   data.prox.consul data proxima consulta
+#' @return resultado tb lam
+#' @examples 
+#' lam  <- check_lab_tb_lam(11113,"2016-12-09","2017-01-09")
+#' 
+#' 
+check_lab_tb_lam<- function(pat.nid, data.consult,data.prox.consul){
+  
+  temp_lam <- filter( patient_free_var_lam ,nid==pat.nid) 
+  if(nrow(temp_lam)>0) {
+    tb_lam1  <- temp_lam$tblam1[1]
+    tb_lam2    <- temp_lam$tblam2[1]
+    date_lam1 <- temp_lam$tblamdat1[1]
+    date_lam2 <- temp_lam$tblamdat2[1]
+     if(!is.na(date_lam1)){
+       
+       if(!is.na(date_lam2)){
+          
+         if(as.Date(date_lam2) >= as.Date(data.consult) & as.Date(date_lam2) < as.Date(data.prox.consul)  ) {
+           print(paste0(pat.nid, " resultado  TB LAM :",tb_lam2))
+            if(tb_lam2=="Positive"){
+              return(value_coded_positivo)
+            } else {
+              return(value_coded_negativo)
+              
+            }
+              
+         } else if (as.Date(date_lam1) >= as.Date(data.consult) & as.Date(date_lam1) < as.Date(data.prox.consul)  ) {
+           print(paste0(pat.nid, " resultado  TB LAM :",tb_lam1))
+           if(tb_lam2=="Positive"){
+             return(value_coded_positivo)
+           } else {
+             return(value_coded_negativo)
+             
+           }
+         } else {
+           return(NA) #no LAM info
+         }
+         
+       } else { # only lam1 available
+          if (as.Date(date_lam1) >= as.Date(data.consult) & as.Date(date_lam1) < as.Date(data.prox.consul)  ) {
+           print(paste0(pat.nid, " resultado  TB LAM :",tb_lam1))
+            if(tb_lam1=="Positive"){
+              return(value_coded_positivo)
+            } else {
+              return(value_coded_negativo)
+            }
+          } else {
+            return(NA) #no LAM info
+         }
+       }
+       
+     } else{
+       return(NA) #no LAM info
+       
+     }
+   
+  } else { return(NA) }
+  
+  
+}
+
+
+
+
+
+#' check_lab_tb_crag() -> Retorna resultado de lam 
+#' @param   pat.nid nid do paciente
+#' @param   data.consult data visita
+#' @param   data.prox.consul data proxima consulta
+#' @return resultado tb crag
+#' @examples 
+#' crag  <- check_lab_tb_crag(11113,"2016-12-09","2017-01-09")
+#' 
+
+check_lab_tb_crag <- function(pat.nid, data.consult,data.prox.consul){
+  
+  temp_crag<- filter( patient_free_var_crag ,nid==pat.nid) 
+  if(nrow(temp_crag)>0) {
+    tb_crag1   <- temp_crag$cripto1[1]
+    tb_crag2   <- temp_crag$cripto2[1]
+    date_crag1 <- temp_crag$criptodat1[1]
+    date_crag2 <- temp_crag$criptodat2[1]
+  
+    if(!is.na(date_crag1)){
+      
+      if(!is.na(date_crag2)){
+        
+        if(as.Date(date_crag2) >= as.Date(data.consult) & as.Date(date_crag2) < as.Date(data.prox.consul)  ) {
+          print(paste0(pat.nid, " resultado  TB crag :",tb_crag2))
+          if(tb_crag2=="Negative"){
+            return(value_coded_negativo)
+          } else {
+            return(value_coded_positivo)
+            
+          }
+          
+        } else if (as.Date(date_crag1) >= as.Date(data.consult) & as.Date(date_crag1) < as.Date(data.prox.consul)  ) {
+          print(paste0(pat.nid, " resultado  TB crag :",tb_crag1))
+          if(tb_crag2=="Negative"){
+            return(value_coded_negativo)
+          } else {
+            return(value_coded_positivo)
+            
+          }
+        } else {
+          return(NA) #no crag info
+        }
+        
+      } else { # only crag1 available
+        if (as.Date(date_crag1) >= as.Date(data.consult) & as.Date(date_crag1) < as.Date(data.prox.consul)  ) {
+          print(paste0(pat.nid, " resultado  TB crag :",tb_crag1))
+          if(tb_crag1=="Negative"){
+            return(value_coded_negativo)
+          } else {
+            return(value_coded_positivo)
+          }
+        } else {
+          return(NA) #no crag info
+        }
+      }
+      
+    } else{
+      return(NA) #no crag info
+    }
+    
+  } else {
+    return(NA) }
+  
   
 }
