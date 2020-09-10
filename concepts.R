@@ -46,8 +46,12 @@ concept_fc_hemogl               <- 'e1dd574e-1d5f-11e0-b929-000c29ad1d07'
 concept_fc_alt                  <- 'e1dd5942-1d5f-11e0-b929-000c29ad1d07'
 concept_fc_creat                <- 'e1d7e19c-1d5f-11e0-b929-000c29ad1d07'
 concept_fc_consul_prox          <- 'e1dae630-1d5f-11e0-b929-000c29ad1d07'
-# concept_fr_
-# concept_fr_
+concept_fc_linhat               <- 'fdff0637-b36f-4dce-90c7-fe9f1ec586f0' 
+value_coded_primeira_linha      <- 'a6bbe1ac-5243-40e4-98cb-7d4a1467dfbe'
+value_coded_segunda_linha       <- '7f367983-9911-4f8c-bbfc-a85678801f64'
+value_coded_terceira_linha      <- 'ade7656f-0ce3-461b-b7d8-121932dcd6a2'
+concept_fc_tratamento_tb        <- 'e1d9fbda-1d5f-11e0-b929-000c29ad1d07'
+
 # concept_fr_
 # concept_fr_
 # concept_fr_

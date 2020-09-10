@@ -38,9 +38,9 @@ checkPatientUuidExistsOpenMRS <- function(patient.uuid) {
 
 #' apiCreateOpenmrsPatient() -> cria um paciente no openmrs usando a restAPI
 #' @param json.ficharesumo  json formated string 
-#' @return  vec [urlBase,urlBaseReportingRest,location,hibernateOpenMRSConnectionUrl,hibernateOpenMRSPassword,hibernateOpenMRSUsername]
+#' @return   json status object
 #' @examples 
-#' user_admin  <- ReadJdbcProperties(file)
+#' status  <- apiCreateOpenmrsPatient(json.string)
 #' 
 
 apiCreateOpenmrsPatient <- function(json.patient){
@@ -61,9 +61,9 @@ apiCreateOpenmrsPatient <- function(json.patient){
 
 #' apiCreateOpenmrsFichaResumo() -> cria ficha resumo de um paciente no openmrs usando a restAPI
 #' @param json.ficharesumo  json formated string 
-#' @return  vec [urlBase,urlBaseReportingRest,location,hibernateOpenMRSConnectionUrl,hibernateOpenMRSPassword,hibernateOpenMRSUsername]
+#' @return  json status object
 #' @examples 
-#' user_admin  <- ReadJdbcProperties(file)
+#' status  <- apiCreateOpenmrsFichaResumo(json.string)
 #' 
 
 apiCreateOpenmrsFichaResumo <- function(json.ficharesumo){
@@ -81,5 +81,27 @@ apiCreateOpenmrsFichaResumo <- function(json.ficharesumo){
   
 }
 
+
+#' apiCreateOpenmrsFichaClinica() -> cria ficha clinica de um paciente no openmrs usando a restAPI
+#' @param json.ficha.clinica  json formated string 
+#' @return   json status object
+#' @examples 
+#' status  <- apiCreateOpenmrsFichaClinica(json.string)
+#' 
+
+apiCreateOpenmrsFichaClinica <- function(json.ficha.clinica){
+  
+  #API connection properties
+  jdbc.properties <- readJdbcProperties()
+  
+  # url da API
+  base.url <-  as.character(jdbc.properties$urlBase)
+  base.url <- str_c(base.url,'encounter')
+  
+  # send patient to openmrs
+  status <- POST(url = base.url, body = json.ficha.clinica, config=authenticate('admin', 'eSaude123'),  add_headers("Content-Type"="application/json") )
+  status
+  
+}
 
 
