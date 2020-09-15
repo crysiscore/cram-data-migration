@@ -661,3 +661,70 @@ composeFichaClinica<- function(df.visits,openmrs.pat.uuid) {
   }
   
 }
+
+
+
+
+#' composeFila ->  criar uma string json com informacao para criar a fila de um paciente no openmrs
+#' @param   df.visits  visita
+#' @param  pat.uuid uuid do paciente no openmrs
+#' @examples 
+#' fila  <- composeFila(df,123e2354-3245-2325d-23sdvdfs3)
+#' 
+
+
+composeFila<- function(df.visits,openmrs.pat.uuid) {
+  
+  index=1 # 1 line = 1 visit
+  pat <- df.visits
+  
+  #visit_atributes
+  visit_date       <- pat$datvisit[index]
+  next_visit_date  <- pat$datnext[index]
+  
+  encounter_date_datime <- visit_date
+  #openmrs.pat.uuid = created_patients$openmrs_status[which(created_patients$nid==23465)]
+  nidUuid = openmrs.pat.uuid
+  
+  #regimet
+  regime         <- pat$arv[index]
+  if(is.na(regime) |   regime ==""){
+    obs_regime <- ""
+  }  else {
+    regime <- openmrsGetRegimeUuid(regime)
+    
+  }
+  
+  #encounter_date_datime <- paste0(visit_date," 11:37:31" )
+  encounter_date_datime <- visit_date
+  obs_date_time <- visit_date
+  
+  obs_next_pickup_date <- paste0( ", { \"person\":\"",  nidUuid  ,"\"," ,
+                                  "\"concept\":\"", returnVisitUuid,"\"," ,
+                                  "\"obsDatetime\":\"", obs_date_time,"\"," ,
+                                  "\"comment\":\"CRAM\" ," ,
+                                  "\"value\":\"", next_visit_date,"\"" ,
+                                  "}")
+  
+  
+  
+  encounter_details <- paste0( "\"encounterDatetime\":\"",encounter_date_datime, "\" ," ,
+                               "\"patient\":\"",          nidUuid , "\" ," ,
+                               "\"form\":\"",             form_fila_uuid , "\" ," ,
+                               "\"encounterType\":\"",    encounter_type_fila,"\" , " ,  
+                               "\"location\":\"",         default_location, "\", " ,
+                               "\"encounterProviders\":[{ \"provider\":\"", generic_provider  ,"\"," ,
+                               "\"encounterRole\":\"" , encounter_provider_role,"\"" , "}] ,",
+                               "\"obs\":[ { \"person\":\"",  nidUuid  ,"\"," ,
+                               "\"concept\":\"", concept_fila_regime,"\"," ,
+                               "\"obsDatetime\":\"", obs_date_time,"\"," ,
+                               "\"comment\":\"CRAM\" ," ,
+                               "\"value\":\"", regime,"\"" ,
+                               "}" )
+  
+  joined_encounter_obs <- paste0(encounter_details,obs_next_pickup_date)
+  
+  encounter <- paste0("{ ", joined_encounter_obs, " ] }")
+  return(encounter)
+  
+}

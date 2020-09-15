@@ -4,11 +4,19 @@ generic_provider = "7013d271-1bc2-4a50-bed6-8932044bc18f"
 encounter_type_ficha_resumo = 'e422ecf9-75dd-4367-b21e-54bccabc4763'
 encounter_type_ficha_clinica_adulto = 'e278f956-1d5f-11e0-b929-000c29ad1d07'
 encounter_type_ficha_clinica_ped = 'e278fce4-1d5f-11e0-b929-000c29ad1d07'
-encounter_provider_role ='a0b03050-c99b-11e0-9572-0800200c9a66'
-form_ficha_resumo='05496c70-845c-40b1-9d28-070f67b3f7da'
-form_ficha_clinica='3c2d563a-5d37-4735-a125-d3943a3de30a'
-nid_cram_identifier_type= "33f83248-8501-434c-b1cb-a8450869cdcb"
+encounter_type_fila      <-  'e279133c-1d5f-11e0-b929-000c29ad1d07'      # FILA
+encounter_provider_role  <- 'a0b03050-c99b-11e0-9572-0800200c9a66'
+form_ficha_resumo        <- '05496c70-845c-40b1-9d28-070f67b3f7da'
+form_ficha_clinica       <- '3c2d563a-5d37-4735-a125-d3943a3de30a'
+form_fila_uuid           <- '49857ace-1a92-4980-8313-1067714df151'
+nid_cram_identifier_type <- "224ee927-6a9a-4e07-84ef-50785603a3c3"
 attribute_telephone_uuid <- "e2e3fd64-1d5f-11e0-b929-000c29ad1d07"
+
+program_tarv_uuid <- 'efe2481f-9e75-4515-8d5a-86bfde2b5ad3'
+concept_transferido_de <- 'e1da7d3a-1d5f-11e0-b929-000c29ad1d07'
+programa_tarv_work_flow <- '7f3af436-5c3a-447c-9012-42bb314e03db'
+
+
 
 #value codes
 value_coded_pcr                 <- 'e1d800dc-1d5f-11e0-b929-000c29ad1d07' 
@@ -60,11 +68,10 @@ concept_fc_lab_lam              <- 'ef139cb2-97c1-4c0f-9189-5e0711a45b8f'
 concept_fc_lab_crag             <- 'f3883e12-4883-461b-8440-2a02f3312a84'
 concept_fc_lab_hepatite         <- 'ef139cb2-97c1-4c0f-9189-5e0711a45b8f'
 
+#Fila Concepts
+concept_fila_regime                      <- "e1d83e4e-1d5f-11e0-b929-000c29ad1d07"
+dispensedAmountUuid             <- "e1de2ca0-1d5f-11e0-b929-000c29ad1d07"
+encounterType_fila                        <- "49857ace-1a92-4980-8313-1067714df151"
+dosageUuid                      <- "e1de28ae-1d5f-11e0-b929-000c29ad1d07"
+returnVisitUuid                 <- "e1e2efd8-1d5f-11e0-b929-000c29ad1d07"
 
-# concept_fr_
-# concept_fr_
-# concept_fr_
-# concept_fr_
-# concept_fr_
-# concept_fr_
-# concept_fr_

@@ -91,12 +91,12 @@ patient_admissions$birthdate <- as.Date(patient_admissions$birthdate ,   "%d%B%Y
 patient_admissions$datbirth <- as.Date(patient_admissions$datbirth ,   "%d%B%Y")
 
 # Excluir pacientes com nomes vazios (temp)
-# wout_names         <- filter(patient_admissions,is.na(nome_apelido))
+ wout_names         <- filter(patient_admissions,is.na(nome_apelido))
 patient_admissions <- filter(patient_admissions, ! nid %in% wout_names$nid )
 patient_visits <- filter(patient_visits, ! nid %in% wout_names$nid ) 
 
-# wout_admissions    <-  filter(patient_visits,! nid %in% patient_admissions$nid )  %>% select(keypatie,origin,prof,nid,gender,age,birth,agedate,hiv,anadate,outcome)
-# wout_admissions    <- wout_admissions[!duplicated(wout_admissions$nid),]
+ wout_admissions    <-  filter(patient_visits,! nid %in% patient_admissions$nid )  %>% select(keypatie,origin,prof,nid,gender,age,birth,agedate,hiv,anadate,outcome)
+ wout_admissions    <- wout_admissions[!duplicated(wout_admissions$nid),]
 
 patient_visits <- filter(patient_visits, ! nid %in% wout_admissions$nid ) 
 # writexl::write_xlsx(x = wout_names,path = 'data/pacientes_sem_nomes.xls')
@@ -210,12 +210,28 @@ for (i in 1:nrow(created_patients) ) {
    nid <- created_patients$nid[i]
    uuid <- created_patients$openmrs_status[i]
    df_ficha_resumo_logs$nid[i] <- nid
+   
    json_ficha_resumo <- composeFichaResumo(df.visits = patient_visits,pat.nid = nid,openmrs.pat.uuid =uuid )
    if(!is.na(json_ficha_resumo)){
       status <- apiCreateOpenmrsFichaResumo(json_ficha_resumo)
+      
+      
       if(as.integer(status$status_code)==201 | as.integer(status$status_code) == 204) {
          df_ficha_resumo_logs$api_status_code[i] <- as.integer(status$status_code)
          df_ficha_resumo_logs$message[i] <- "sucess"
+         tmp_nid <- nid
+         tmp_pat <- subset(patient_visits, nid ==tmp_nid,)
+         tmp_pat <- arrange(tmp_pat,datvisit)
+         #visit_atributes
+         date_enrolled <- tmp_pat$datvisit[1]
+         enrrollment_details <- paste0( "\"patient\":\"",        uuid, "\" ," ,
+                                        "\"program\":\"",        program_tarv_uuid , "\" ," ,
+                                        "\"dateEnrolled\":\"",   date_enrolled , "\" ," ,
+                                        "\"location\":\"",       default_location, "\" ") 
+         
+         json_enrollment <- paste0( "{ ", enrrollment_details, "  }" )
+         status_enrollment <- apiCreateProgramEnrollment(json_enrollment)
+         
          #TODO for each patient create ficha resumo
       } else {
          # TODO: handle failure
@@ -245,48 +261,90 @@ for (i in 1:nrow(created_patients) ) {
 }
 
 #Migrate fichas clinicas
-df_ficha_clinica_logs <- createLogsDataFrame(nrow(created_patients))
-df_ficha_clinica_logs <- df_ficha_clinica_logs[1:1,]
-df_ficha_clinica_logs_tmp  <- df_ficha_clinica_logs
-
-for (pat_index in 1:nrow(created_patients) ) {
+   df_ficha_clinica_logs <- createLogsDataFrame(nrow(created_patients))
+   df_ficha_clinica_logs <- df_ficha_clinica_logs[1:1,]
+   df_ficha_clinica_logs_tmp  <- df_ficha_clinica_logs
+   df_fila_logs_tmp <- df_ficha_clinica_logs
+   df_fila_logs <- df_ficha_clinica_logs
    
-   pat.nid <- created_patients$nid[pat_index]
-   uuid <- created_patients$openmrs_status[pat_index]
-   df_ficha_clinica_logs_tmp$nid[1] <- pat.nid
-   
-   df_visits <- filter(patient_visits, nid==pat.nid) %>% arrange(datvisit)
-   
-   for (vis_index in 1:nrow(df_visits) ) {
+   for (pat_index in 1:nrow(created_patients) ) {
       
-      visit <- df_visits[vis_index,]
-      json.ficha.clinica <- composeFichaClinica(df.visits = visit,openmrs.pat.uuid =uuid )
-      status <- apiCreateOpenmrsFichaClinica(json.ficha.clinica)
+      pat.nid <- created_patients$nid[pat_index]
+      uuid <- created_patients$openmrs_status[pat_index]
+      df_ficha_clinica_logs_tmp$nid[1] <- pat.nid
+      df_fila_logs_tmp$nid[1] <- pat.nid
+      df_visits <- filter(patient_visits, nid==pat.nid) %>% arrange(datvisit)
       
-      if(as.integer(status$status_code)==201 | as.integer(status$status_code) == 204) {
-         df_ficha_clinica_logs_tmp$api_status_code[1] <- as.integer(status$status_code)
-         df_ficha_clinica_logs_tmp$message[1] <- "sucess"
-         df_ficha_clinica_logs <- bind_rows(df_ficha_clinica_logs,df_ficha_clinica_logs_tmp)
+      for (vis_index in 1:nrow(df_visits) ) {
          
-      } else {
-     
-         content <- content(status)
-         df_ficha_clinica_logs_tmp$api_status_code[1] <- as.integer(status$status_code)
-         df_ficha_clinica_logs_tmp$message[1] <- content$error$message
-         if(content$error$message=="Invalid Submission"){
-            df_ficha_clinica_logs_tmp$detail[1] <- content$error$globalErrors[[1]]$message
-         }else if(grepl(pattern = "Could not read JSON:",x = content$error$message,ignore.case = TRUE)){
+         visit <- df_visits[vis_index,]
+         json.ficha.clinica <- composeFichaClinica(df.visits = visit,openmrs.pat.uuid =uuid )
+         
+       
+         status <- apiCreateOpenmrsFichaClinica(json.ficha.clinica)
+         
+         if(as.integer(status$status_code)==201 | as.integer(status$status_code) == 204) {
+            df_ficha_clinica_logs_tmp$api_status_code[1] <- as.integer(status$status_code)
+            df_ficha_clinica_logs_tmp$message[1] <- "sucess"
+            df_ficha_clinica_logs <- bind_rows(df_ficha_clinica_logs,df_ficha_clinica_logs_tmp)
+        
+            vis_date <- as.Date(visit$datvisit)
+            next_vist <- as.Date(visit$datnext)
+            if(as.numeric(next_vist-vis_date) > 20){ 
+               ################# Fila
+               #cria fila associado a visita
+               json_fila <- composeFila(df.visits = visit,openmrs.pat.uuid =uuid )
+               status_fila <- apiCreateOpenmrsFila( json_fila)
+               if(as.integer(status_fila$status_code)==201 | as.integer(status_fila$status_code) == 204){
+                  df_fila_logs_tmp$api_status_code[1] <- as.integer(status$status_code)
+                  df_fila_logs_tmp$message[1] <- "sucess"
+                  df_fila_logs <- bind_rows(df_fila_logs_tmp,df_fila_logs)
+               } else{
+                  
+                  content <- content(status_fila)
+                  df_fila_logs_tmp$api_status_code[1] <- as.integer(status_fila$status_code)
+                  df_fila_logs_tmp$message[1] <- content$error$message
+                  if(content$error$message=="Invalid Submission"){
+                     df_fila_logs_tmp$detail[1] <- content$error$globalErrors[[1]]$message
+                  }else if(grepl(pattern = "Could not read JSON:",x = content$error$message,ignore.case = TRUE)){
+                     
+                     df_fila_logs_tmp$detail[1] <- content$error$detail
+                  }
+                  else {
+                     df_fila_logs_tmp$detail[1] <- content$error$detail
+                  }
+                  
+                  df_fila_logs <- bind_rows(df_fila_logs,df_fila_logs_tmp)
+                  
+               }
+               
+            } else {
+               
+               # skip fila criation
+               print(paste0(pat.nid, " - Skipping creation of fila due to short visit dates"))
+            }
             
-            df_ficha_clinica_logs_tmp$detail[1] <- content$error$detail
-         }
+      
+         } 
          else {
-            df_ficha_clinica_logs_tmp$detail[1] <- content$error$detail
+        
+            content <- content(status)
+            df_ficha_clinica_logs_tmp$api_status_code[1] <- as.integer(status$status_code)
+            df_ficha_clinica_logs_tmp$message[1] <- content$error$message
+            if(content$error$message=="Invalid Submission"){
+               df_ficha_clinica_logs_tmp$detail[1] <- content$error$globalErrors[[1]]$message
+            }else if(grepl(pattern = "Could not read JSON:",x = content$error$message,ignore.case = TRUE)){
+               
+               df_ficha_clinica_logs_tmp$detail[1] <- content$error$detail
+            }
+            else {
+               df_ficha_clinica_logs_tmp$detail[1] <- content$error$detail
+            }
+            
+            df_ficha_clinica_logs <- bind_rows(df_ficha_clinica_logs,df_ficha_clinica_logs_tmp)
+            
          }
-         
-         df_ficha_clinica_logs <- bind_rows(df_ficha_clinica_logs,df_ficha_clinica_logs_tmp)
          
       }
       
    }
-   
-}

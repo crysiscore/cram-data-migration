@@ -1,358 +1,159 @@
-#' composeFichaClinica ->  criar uma string json com informacao para criar a ficha clinica de um paciente no openmrs
-#' @param   df.visits  visita
-#' @param  pat.uuid uuid do paciente no openmrs
-#' @examples 
-#' ficha_resumo  <- composeFichaClinica(df,123e2354-3245-2325d-23sdvdfs3)
-#' 
 
-
-composeFichaClinica<- function(df.visits,openmrs.pat.uuid) {
-  
+composeFila<- function(df.visits,openmrs.pat.uuid) {
   index=1 # 1 line = 1 visit
   pat <- df.visits
-  pat.nid <- df.visits$nid[index]
- 
-  if(nrow(pat)!=0){
-    
-    #visit_atributes
-    visit_date       <- pat$datvisit[index]
-    next_visit_date  <- pat$datnext[index]
-    patient        <- openmrs.pat.uuid
+
+  #visit_atributes
+  visit_date       <- pat$datvisit[index]
+  next_visit_date  <- pat$datnext[index]
+
+  encounter_date_datime <- visit_date
+  #openmrs.pat.uuid = created_patients$openmrs_status[which(created_patients$nid==23465)]
+  nidUuid = openmrs.pat.uuid
+  
+  #regimet
+  regime         <- pat$arv[index]
+  if(is.na(regime) |   regime ==""){
+    obs_regime <- ""
+  }  else {
+    regime <- openmrsGetRegimeUuid(regime)
+   
+  }
+  
     #encounter_date_datime <- paste0(visit_date," 11:37:31" )
     encounter_date_datime <- visit_date
     obs_date_time <- visit_date
-    age <- pat$agev[index]      
     
-    #Whostage
-    #TODO estadio OMS: 0 - unknown
-    if(i==1){
-      estadio_oms <- pat$whof[index]
-    } else {
-      
-      estadio_oms <- pat$whop[index]
-    }
-
-    if (estadio_oms==0){
-      obs_estadio <- ""
-    } else if(estadio_oms==1){
-      estadio_oms <- 'e1d9055e-1d5f-11e0-b929-000c29ad1d07'
-      obs_estadio <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                             "\"concept\":\"",concept_fc_estadio_oms ,"\"," ,
-                             "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                             "\"value\":\"", estadio_oms,"\"" ,
-                             "}")
-      
-    } else if(estadio_oms==2){
-      estadio_oms <- 'e1d9066c-1d5f-11e0-b929-000c29ad1d07'
-      obs_estadio <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                             "\"concept\":\"",concept_fc_estadio_oms ,"\"," ,
-                             "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                             "\"value\":\"", estadio_oms,"\"" ,
-                             "}")
-      
-    } else if(estadio_oms==3){
-      estadio_oms <- 'e1d9077a-1d5f-11e0-b929-000c29ad1d07'
-      obs_estadio <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                             "\"concept\":\"",concept_fc_estadio_oms ,"\"," ,
-                             "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                             "\"value\":\"", estadio_oms,"\"" ,
-                             "}")
-    } else if(estadio_oms==4){
-      estadio_oms <- 'e1d90888-1d5f-11e0-b929-000c29ad1d07'
-      obs_estadio <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                             "\"concept\":\"",concept_fc_estadio_oms ,"\"," ,
-                             "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                             "\"value\":\"", estadio_oms,"\"" ,
-                             "}")
-    } else {
-      obs_estadio <- ""
-    }
-
-    # Peso
-    weight <- pat$weight[index]
-    if(is.na(weight) | weight ==""){
-      obs_weight <-""
-    } else {
-      
-      obs_weight  <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                          "\"concept\":\"", concept_fc_weight,"\"," ,
-                          "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                          "\"value\":\"", weight,"\"" ,
-                          "}")
-      
-    }
-    #Altura
-    height <- pat$height[index]
-    if(is.na(height) | height ==""){
-      obs_height <-""
-    } else {
-      
-      obs_height  <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                             "\"concept\":\"", concept_fc_height,"\"," ,
-                             "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                             "\"value\":\"", height,"\"" ,
-                             "}")
-      
-    }
+    obs_next_pickup_date <- paste0( ", { \"person\":\"",  nidUuid  ,"\"," ,
+                                        "\"concept\":\"", returnVisitUuid,"\"," ,
+                                        "\"obsDatetime\":\"", obs_date_time,"\"," ,
+                                        "\"comment\":\"CRAM\" ," ,
+                                        "\"value\":\"", next_visit_date,"\"" ,
+                                        "}")
     
-    #Profilaxias  INH
-    prof_ihn <- pat$inh[index]
-    if(is.na(prof_ihn) | prof_ihn ==""){
-      obs_prof_ihn <-""
-    } else {
-      
-      obs_prof_ihn <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                             "\"concept\":\"", concept_fc_prof_inh,"\"," ,
-                             "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                             "\"value\":\"", value_coded_continua,"\"" ,
-                             "}")
-      
-    }
-    
-    #Profilaxias CTZ 
-    prof_ctz<- pat$cotri[index]
-    if(is.na(prof_ctz) | prof_ctz ==""){
-      obs_prof_ctz <-""
-    } else {
-      
-      obs_prof_ctz <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                              "\"concept\":\"", concept_fc_pof_ctz,"\"," ,
-                              "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                              "\"value\":\"", value_coded_continua,"\"" ,
-                              "}")
-    }
-    
-    
-    #carga viral
-    carga_viral    <- pat$hivload[index]
-    if(is.na(carga_viral) | carga_viral==""){
-      obs_carga_viral <-""
-    } else {
-      if(carga_viral==99) #Indectectavel/qualitativa
-      {
-        obs_carga_viral <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                                   "\"concept\":\"", concept_fc_hivload_qualitativa,"\"," ,
-                                   "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                                   "\"value\":\"", value_coded_hivload_nivel_baixo,"\"" ,
-                                   "}")
-        
-      } else {  # Numerica
-        
-        obs_carga_viral <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                                   "\"concept\":\"", concept_fc_carga_viral,"\"," ,
-                                   "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                                   "\"value\":\"", carga_viral,"\"" ,
-                                   "}")
-      }
-    
-    }
-    # CD4
-    cd4_nr         <- pat$lccd4[index]
-    if(is.na(cd4_nr) | cd4_nr ==""){
-      obs_cd4 <-""
-    } else {
-      
-      obs_cd4  <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                          "\"concept\":\"", concept_fc_cd4,"\"," ,
-                          "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                          "\"value\":\"", cd4_nr,"\"" ,
-                          "}")
-      
-    }
-    #regimet
-    regime         <- pat$arv[index]
-    if(is.na(regime) |   regime ==""){
-      obs_regime <- ""
-    }  else {
-      regime <- openmrsGetRegimeUuid(regime)
-      obs_regime <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                            "\"concept\":\"", concept_fc_regime,"\"," ,
-                            "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                            "\"value\":\"", regime,"\"" ,
-                            "}")
-    }
-    #Hemoglobina
-    
-    hemoglb <- pat$hemoglb[index]
-    if(is.na(hemoglb) | hemoglb ==""){
-      obs_hemoglb <-""
-    } else {
-      
-      obs_hemoglb  <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                          "\"concept\":\"", concept_fc_hemogl,"\"," ,
-                          "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                          "\"value\":\"", hemoglb,"\"" ,
-                          "}")
-      
-    }
-    #ALT
-    
-    alt <- pat$alat[index]
-    if(is.na(alt) | alt ==""){
-      obs_alt <-""
-    } else {
-      
-      obs_alt  <- paste0( ", { \"person\":\"",  patient  ,"\"," ,
-                              "\"concept\":\"", concept_fc_alt,"\"," ,
-                              "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                              "\"value\":\"", alt,"\"" ,
-                              "}")
-      
-    }
-    
-    #Creatinina
-    creat <- pat$creatui[index]
-    if(is.na(creat) | creat ==""){
-      obs_creat <-""
-    } else {
-      
-      obs_creat  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
-                                "\"concept\":\"", concept_fc_creat,"\"," ,
-                                "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                                "\"value\":\"", creat,"\"" ,
-                              "}")
-    }
-    
-    # Linhas terapeuticas
-    # 
-      tmp_linha <- checkLinhaTerapeutica(pat$nid[index])
-      if(length(tmp_linha)==1){ # primeira linha
-      
-          obs_linhat  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
-                             "\"concept\":\"", concept_fc_linhat,"\"," ,
-                             "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                             "\"value\":\"", tmp_linha,"\"" ,
-                             "}")
-      } else if (is.na(tmp_linha[2])){
-        
-        obs_linhat  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
-                              "\"concept\":\"", concept_fc_linhat,"\"," ,
-                              "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                              "\"value\":\"", tmp_linha[1],"\"" ,
-                              "}")
-        
-      }  else if(as.Date(tmp_linha[2]) < as.Date(visit_date)){
-          
-          obs_linhat  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
-                                "\"concept\":\"", concept_fc_linhat,"\"," ,
-                                "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                                "\"value\":\"", value_coded_primeira_linha,"\"" ,
-                                "}")
-          
-        }   else {
-          
-          obs_linhat  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
-                                "\"concept\":\"", concept_fc_linhat,"\"," ,
-                                "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                                "\"value\":\"", tmp_linha[1],"\"" ,
-                                "}")
-          
-        }
-      
-      
-  # TB estado (Inicio/Continua/Fim)
-      
-     tratamento_tb <- checkTuberculoseInfo(pat.nid,visit_date,next_visit_date)
-     
-     if(is.na(tratamento_tb) ){
-      obs_tratamento_tb <- ""
-       
-     }
-     else {
-       
-       obs_tratamento_tb  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
-                            "\"concept\":\"", concept_fc_tratamento_tb,"\"," ,
-                            "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                            "\"value\":\"", tratamento_tb,"\"" ,
-                            "}")
-       
-     }
-     
-  # TB LAM
-     lab_tb_lam <- check_lab_tb_lam(pat.nid,visit_date,next_visit_date)
-     if(is.na(lab_tb_lam) ){
-       obs_lab_tb_lam <- ""
-       
-     } 
-     else {
-       
-       obs_lab_tb_lam  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
-                                    "\"concept\":\"", concept_fc_lab_lam,"\"," ,
-                                    "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                                    "\"value\":\"", lab_tb_lam,"\"" ,
-                                    "}")
-       
-     }
   
-        # TB CRAG
-     lab_tb_crag <- check_lab_tb_crag(pat.nid,visit_date,next_visit_date)
-     if(is.na(lab_tb_crag) ){
-       obs_lab_tb_crag <- ""
-       
-     }
-     else {
-       
-       obs_lab_tb_crag  <- paste0(", { \"person\":\"",  patient  ,"\"," ,
-                                 "\"concept\":\"", concept_fc_lab_crag,"\"," ,
-                                 "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                                 "\"value\":\"", lab_tb_crag,"\"" ,
-                                 "}")
-       
-     }  
-     #
-     
-     
-    # these encounter details and obs are never empty 
+    
+    encounter_details <- paste0( "\"encounterDatetime\":\"",encounter_date_datime, "\" ," ,
+                                     "\"patient\":\"",          nidUuid , "\" ," ,
+                                     "\"form\":\"",             form_fila_uuid , "\" ," ,
+                                     "\"encounterType\":\"",    encounter_type_fila,"\" , " ,  
+                                     "\"location\":\"",         default_location, "\", " ,
+                                     "\"encounterProviders\":[{ \"provider\":\"", generic_provider  ,"\"," ,
+                                     "\"encounterRole\":\"" , encounter_provider_role,"\"" , "}] ,",
+                                     "\"obs\":[ { \"person\":\"",  nidUuid  ,"\"," ,
+                                                 "\"concept\":\"", concept_fila_regime,"\"," ,
+                                                 "\"obsDatetime\":\"", obs_date_time,"\"," ,
+                                                 "\"comment\":\"CRAM\" ," ,
+                                                 "\"value\":\"", regime,"\"" ,
+                                                 "}" )
+                
+    joined_encounter_obs <- paste0(encounter_details,obs_next_pickup_date)
+    
+    encounter <- paste0("{ ", joined_encounter_obs, " ] }")
+    return(encounter)
 
-     if(age <15){
-       encounter_details_ped <- paste0( "\"encounterDatetime\":\"",encounter_date_datime, "\" ," ,
-                                        "\"patient\":\"",          patient , "\" ," ,
-                                        "\"form\":\"",             form_ficha_clinica , "\" ," ,
-                                        "\"encounterType\":\"",    encounter_type_ficha_clinica_ped,"\" , " ,  
-                                        "\"location\":\"",         default_location, "\", " ,
-                                        "\"encounterProviders\":[{ \"provider\":\"", generic_provider  ,"\"," ,
-                                        "\"encounterRole\":\"" , encounter_provider_role,"\"" , "}] ,",
-                                        "\"obs\":[ { \"person\":\"",  patient  ,"\"," ,
-                                        "\"concept\":\"", concept_fc_consul_prox,"\"," ,
-                                        "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                                        "\"value\":\"", next_visit_date,"\"" ,
-                                        "}" )
-       
-       
-       
-       joined_encounter_obs <- paste0(encounter_details_ped,obs_carga_viral,obs_cd4,obs_estadio,
-                                      obs_hemoglb,obs_creat,obs_alt,obs_prof_ctz,obs_prof_ihn,obs_weight,
-                                      obs_linhat,obs_tratamento_tb,
-                                      obs_lab_tb_crag,obs_lab_tb_lam,obs_height, obs_regime)
-       
-       encounter <- paste0("{ ", joined_encounter_obs, " ] }")
-       encounter
-       
-     } else {
-       encounter_details_adult <- paste0( "\"encounterDatetime\":\"",encounter_date_datime, "\" ," ,
-                                        "\"patient\":\"",          patient , "\" ," ,
-                                        "\"form\":\"",             form_ficha_clinica , "\" ," ,
-                                        "\"encounterType\":\"",    encounter_type_ficha_clinica_adulto,"\" , " ,  
-                                        "\"location\":\"",         default_location, "\", " ,
-                                        "\"encounterProviders\":[{ \"provider\":\"", generic_provider  ,"\"," ,
-                                        "\"encounterRole\":\"" , encounter_provider_role,"\"" , "}] ,",
-                                        "\"obs\":[ { \"person\":\"",  patient  ,"\"," ,
-                                        "\"concept\":\"", concept_fc_consul_prox,"\"," ,
-                                        "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                                        "\"value\":\"", next_visit_date,"\"" ,
-                                        "}" )
-       
-       
-       
-       joined_encounter_obs <- paste0(encounter_details_adult,obs_carga_viral,obs_cd4,obs_estadio,
-                                      obs_hemoglb,obs_creat,obs_alt,obs_prof_ctz,obs_prof_ihn,obs_weight,
-                                      obs_linhat,obs_tratamento_tb,
-                                      obs_lab_tb_crag,obs_lab_tb_lam,obs_height, obs_regime)
-       
-       encounter <- paste0("{ ", joined_encounter_obs, " ] }")
-       encounter
-       
-     }
-  }
+}
+
+program_tarv_uuid <- 'efe2481f-9e75-4515-8d5a-86bfde2b5ad3'
+concept_transferido_de <- 'e1da7d3a-1d5f-11e0-b929-000c29ad1d07'
+programa_tarv_work_flow <- '7f3af436-5c3a-447c-9012-42bb314e03db'
+date_enrolled="2020-06-24"
+
+nidUuid <-'9d50a116-f6d1-11ea-b4b3-0242c73e7dc1'
+
+encounter_details <- paste0( "\"patient\":\"",        nidUuid, "\" ," ,
+                             "\"program\":\"",        program_tarv_uuid , "\" ," ,
+                             "\"dateEnrolled\":\"",   date_enrolled , "\" ," ,
+                             "\"location\":\"",         default_location, "\", " ,
+                             "\"workflows\":[{ \"person\":\"",  nidUuid  ,"\"," ,
+                             "\"concept\":\"", programa_tarv_work_flow,"\"" , " , " ,
+                             "\"states\":[{ \"person\":\"",  nidUuid  ,"\"," ,
+                             "\"concept\":\"", concept_transferido_de,"\"," ,
+                             "\"startDate\":\"", date_enrolled,"\" " , "}]" , "}]")
+
+
+
+                            
+encounter_details <- paste0( "\"patient\":\"",        nidUuid, "\" ," ,
+                             "\"program\":\"",        program_tarv_uuid , "\" ," ,
+                             "\"dateEnrolled\":\"",   date_enrolled , "\" ," ,
+                             "\"location\":\"",       default_location, "\" ,",
+                             "\"states\":[{ \"concept\" : \"", concept_transferido_de,"\" ," ,
+                                             "\"startDate\":\"", date_enrolled,"\" }]  " ) 
+
+paste0("{ \"states\": [{ \"state\": {\"uuid\" : \"" , concept_transferido_de
+, "\"}, \"startDate\": \"" , date_enrolled , "\"}]}")
+{ \"states\": [{ \"uuid\": \"" + existingPatientState.getUuid() + "\", \"startDate\": \""
+  + stateStartDate + "\"}]}"
+  
+
+encounter <- paste0( "{ ", encounter_details, "  }" )
+validate(encounter)
+json.enrollment <- encounter
+
+status <- POST(url = base.url,
+               body = json.enrollment, config=authenticate('admin', 'eSaude123'),
+               add_headers("Content-Type"="application/json") )
+content(status)
+
+wf_details <-        paste0( "\"patient\":\"",        nidUuid, "\" ," ,
+                             "\"concept\":\"", programa_tarv_work_flow,"\" ," ,
+                             "\"states\":[{ \"concept\":\"", concept_transferido_de,"\" ," ,
+                             "\"startDate\":\"", date_enrolled,"\" }]  " ) 
+
+
+base.url <-  as.character(jdbc.properties$urlBase)
+base.url <- str_c(base.url,'workflow')
+
+encounter <- paste0("{ ", wf_details, "  }")
+
+json.enrollment <- encounter
+status <- POST(url = base.url,
+               body = json.enrollment, config=authenticate('admin', 'eSaude123'),
+               add_headers("Content-Type"="application/json") )
+
+content(status)
+
+
+
+
+encounter_details <- paste0( "\"patient\":\"",        nidUuid, "\" ," ,
+                             "\"program\":{ \"uuid\":\"",  program_tarv_uuid , "\" ," ,
+                                           "\"allWorkflows\":[{ \"person\":\"",  nidUuid  ,"\"," ,
+                                           "\"concept\":\"", programa_tarv_work_flow,"\" ," ,
+                                           "\"states\":[{ \"person\":\"",  nidUuid  ,"\" ," ,
+                                           "\"concept\":\"", concept_transferido_de,"\" ," ,
+                                           "\"startDate\":\"", date_enrolled,"\" }] }] } ," ,
+                             "\"dateEnrolled\":\"",   date_enrolled , "\" ," ,
+                             "\"location\":\"",       default_location, "\" ") 
+
+
+base.url <-  as.character(jdbc.properties$urlBase)
+base.url <- str_c(base.url,'workflow')
+encounter <- paste0("{ ", encounter_details, "  }")
+json.enrollment <- encounter
+status <- POST(url = base.url,
+               body = json.enrollment, config=authenticate('admin', 'eSaude123'),
+               add_headers("Content-Type"="application/json") )
+content(status)
+
+apiCreateProgramEnrollment <- function(json.enrollment){
+  
+  encounter_details <- paste0( "\"patient\":\"",        nidUuid, "\" ," ,
+                               "\"program\":\"",        program_tarv_uuid , "\" ," ,
+                               "\"dateEnrolled\":\"",   date_enrolled , "\" ," ,
+                               "\"location\":\"",       default_location, "\" ") 
+  #API connection properties
+  jdbc.properties <- readJdbcProperties()
+  
+  # url da API
+  base.url <-  as.character(jdbc.properties$urlBase)
+  base.url <- str_c(base.url,'programenrollment')
+  
+  # send patient to openmrs
+  status <- POST(url = base.url,
+                 body = json.enrollment, config=authenticate('admin', 'eSaude123'),
+                 add_headers("Content-Type"="application/json") )
+  content(status)
   
 }

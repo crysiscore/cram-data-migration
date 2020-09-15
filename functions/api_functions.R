@@ -105,3 +105,50 @@ apiCreateOpenmrsFichaClinica <- function(json.ficha.clinica){
 }
 
 
+
+#' json.fila() -> cria fila de um paciente no openmrs usando a restAPI
+#' @param json.fila json formated string 
+#' @return   json status object
+#' @examples 
+#' status  <- apiCreateOpenmrsFila(json.string)
+#' 
+
+apiCreateOpenmrsFila <- function(json.fila){
+  
+  #API connection properties
+  jdbc.properties <- readJdbcProperties()
+  
+  # url da API
+  base.url <-  as.character(jdbc.properties$urlBase)
+  base.url <- str_c(base.url,'encounter')
+  
+  # send patient to openmrs
+  status <- POST(url = base.url,
+                 body = json.fila, config=authenticate('admin', 'eSaude123'),
+                 add_headers("Content-Type"="application/json") )
+  status
+  
+}
+
+
+
+
+
+
+apiCreateProgramEnrollment <- function(json.enrollment){
+  
+
+  #API connection properties
+  jdbc.properties <- readJdbcProperties()
+  
+  # url da API
+  base.url <-  as.character(jdbc.properties$urlBase)
+  base.url <- str_c(base.url,'programenrollment')
+  
+  # send patient to openmrs
+  status <- POST(url = base.url,
+                 body = json.enrollment, config=authenticate('admin', 'eSaude123'),
+                 add_headers("Content-Type"="application/json") )
+  content(status)
+  
+}
