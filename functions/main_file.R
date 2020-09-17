@@ -224,12 +224,24 @@ for (i in 1:nrow(created_patients) ) {
          tmp_pat <- arrange(tmp_pat,datvisit)
          #visit_atributes
          date_enrolled <- tmp_pat$datvisit[1]
-         enrrollment_details <- paste0( "\"patient\":\"",        uuid, "\" ," ,
-                                        "\"program\":\"",        program_tarv_uuid , "\" ," ,
-                                        "\"dateEnrolled\":\"",   date_enrolled , "\" ," ,
-                                        "\"location\":\"",       default_location, "\" ") 
          
-         json_enrollment <- paste0( "{ ", enrrollment_details, "  }" )
+        
+         # desactualizado
+         # enrrollment_details <- paste0( "\"patient\":\"",        uuid, "\" ," ,
+         #                                "\"program\":\"",        program_tarv_uuid , "\" ," ,
+         #                                "\"dateEnrolled\":\"",   date_enrolled , "\" ," ,
+         #                                "\"location\":\"",       default_location, "\" ") 
+         
+         json_enrollment <-  paste0("{", "\"patient\" : \"",uuid,"\" ,",
+                                    "\"program\":\"",     program_tarv_uuid , "\" ," ,
+                                    "\"dateEnrolled\":\"",   date_enrolled , "\" ," ,
+                                    "\"dateCompleted\": null, " ,
+                                    "\"location\":\"",       default_location, "\" ," ,
+                                    "\"voided\": false, ",
+                                    "\"outcome\": null,",
+                                    "\"states\": [{ \"state\": { \"uuid\":\"ef06e6df-6026-4d5a-88f9-b2c3e0495dc8\", \"retired\": false ,\"concept\":  \"e1da7d3a-1d5f-11e0-b929-000c29ad1d07\" }, \"startDate\": \"" ,   date_enrolled ,"\" ," , 
+                                    "\"endDate\": null }] ", "}" )
+         
          status_enrollment <- apiCreateProgramEnrollment(json_enrollment)
          
          #TODO for each patient create ficha resumo
