@@ -145,7 +145,7 @@ checkLinhaTerapeutica <- function(pat.nid){
    if(!is.na(var_2_linha)) {
      
      if(is.na(data_sec_linha)){
-       write_xlsx(x =temp_free_var,path = paste0('errors/',nid,"_linhas_terapeuticas_sem_data.xlsx") )
+       write_xlsx(x =temp_free_var,path = paste0('errors/',pat.nid,"_linhas_terapeuticas_sem_data.xlsx") )
        return(c(value_coded_segunda_linha,data_sec_linha))
      } else {
        return(c(value_coded_segunda_linha,data_sec_linha))
@@ -155,7 +155,7 @@ checkLinhaTerapeutica <- function(pat.nid){
    } else if(!is.na(var_2_linha_opt)){
     
       if(is.na(data_sec_linha)){
-       write_xlsx(x =temp_free_var,path = paste0('errors/',nid,"_linhas_terapeuticas_sem_data.xlsx") )
+       write_xlsx(x =temp_free_var,path = paste0('errors/',pat.nid,"_linhas_terapeuticas_sem_data.xlsx") )
        return(c(value_coded_segunda_linha,data_sec_linha))
      } else {
        return(c(value_coded_segunda_linha,data_sec_linha))
@@ -187,7 +187,11 @@ checkLinhaTerapeutica <- function(pat.nid){
 #' 
 #' 
 checkTuberculoseInfo <- function(pat.nid, data.consult,data.prox.consul){
-  
+  # as vezes a data da prox visita e vazia
+  data_prox_consult <- data.prox.consul
+  if (is.na(data_prox_consult)){
+    data_prox_consult <- as.Date(data.consult) + 30
+  }
   temp_tb <- filter( tb_patient ,nid==pat.nid) 
   if(nrow(temp_tb)>0) {
     ttfrom  <- temp_tb$tttfrom[1]
@@ -203,7 +207,7 @@ checkTuberculoseInfo <- function(pat.nid, data.consult,data.prox.consul){
       
       if(as.Date(ttfrom) < as.Date("2020-01-21") & tb_type != "Not specified"){ # nao vamos registar (nao se conhece o desfecho)
         return(NA)
-      } else if(as.Date(ttfrom) >= as.Date(data.consult) & as.Date(ttfrom) < as.Date(data.prox.consul)  ) {
+      } else if(as.Date(ttfrom) >= as.Date(data.consult) & as.Date(ttfrom) < as.Date(data_prox_consult)  ) {
         print(paste0(pat.nid, " Inicia TB"))
         return(value_coded_inicia)
       } else if(as.Date(ttfrom) < as.Date(data.consult)){
@@ -235,6 +239,13 @@ checkTuberculoseInfo <- function(pat.nid, data.consult,data.prox.consul){
 #' 
 check_lab_tb_lam<- function(pat.nid, data.consult,data.prox.consul){
   
+  data_prox_consult <-data.prox.consul
+  
+  # as vezes a data da prox visita e vazia
+  if (is.na(data_prox_consult)){
+    data_prox_consult <- as.Date(data.consult) + 30
+  }
+  
   temp_lam <- filter( patient_free_var_lam ,nid==pat.nid) 
   if(nrow(temp_lam)>0) {
     tb_lam1  <- temp_lam$tblam1[1]
@@ -244,8 +255,8 @@ check_lab_tb_lam<- function(pat.nid, data.consult,data.prox.consul){
      if(!is.na(date_lam1)){
        
        if(!is.na(date_lam2)){
-          
-         if(as.Date(date_lam2) >= as.Date(data.consult) & as.Date(date_lam2) < as.Date(data.prox.consul)  ) {
+        
+         if(as.Date(date_lam2) >= as.Date(data.consult) & as.Date(date_lam2) < as.Date(data_prox_consult)  ) {
            print(paste0(pat.nid, " resultado  TB LAM :",tb_lam2))
             if(tb_lam2=="Positive"){
               return(value_coded_positivo)
@@ -254,7 +265,7 @@ check_lab_tb_lam<- function(pat.nid, data.consult,data.prox.consul){
               
             }
               
-         } else if (as.Date(date_lam1) >= as.Date(data.consult) & as.Date(date_lam1) < as.Date(data.prox.consul)  ) {
+         } else if (as.Date(date_lam1) >= as.Date(data.consult) & as.Date(date_lam1) < as.Date(data_prox_consult)  ) {
            print(paste0(pat.nid, " resultado  TB LAM :",tb_lam1))
            if(tb_lam2=="Positive"){
              return(value_coded_positivo)
@@ -267,7 +278,7 @@ check_lab_tb_lam<- function(pat.nid, data.consult,data.prox.consul){
          }
          
        } else { # only lam1 available
-          if (as.Date(date_lam1) >= as.Date(data.consult) & as.Date(date_lam1) < as.Date(data.prox.consul)  ) {
+          if (as.Date(date_lam1) >= as.Date(data.consult) & as.Date(date_lam1) < as.Date(data_prox_consult)  ) {
            print(paste0(pat.nid, " resultado  TB LAM :",tb_lam1))
             if(tb_lam1=="Positive"){
               return(value_coded_positivo)
@@ -303,6 +314,11 @@ check_lab_tb_lam<- function(pat.nid, data.consult,data.prox.consul){
 #' 
 
 check_lab_tb_crag <- function(pat.nid, data.consult,data.prox.consul){
+  # as vezes a data da prox visita e vazia
+  data_prox_consult <- data.prox.consul
+  if (is.na(data_prox_consult)){
+    data_prox_consult <- as.Date(data.consult) + 30
+  }
   
   temp_crag<- filter( patient_free_var_crag ,nid==pat.nid) 
   if(nrow(temp_crag)>0) {
@@ -315,7 +331,7 @@ check_lab_tb_crag <- function(pat.nid, data.consult,data.prox.consul){
       
       if(!is.na(date_crag2)){
         
-        if(as.Date(date_crag2) >= as.Date(data.consult) & as.Date(date_crag2) < as.Date(data.prox.consul)  ) {
+        if(as.Date(date_crag2) >= as.Date(data.consult) & as.Date(date_crag2) < as.Date(data_prox_consult)  ) {
           print(paste0(pat.nid, " resultado  TB crag :",tb_crag2))
           if(tb_crag2=="Negative"){
             return(value_coded_negativo)
@@ -324,7 +340,7 @@ check_lab_tb_crag <- function(pat.nid, data.consult,data.prox.consul){
             
           }
           
-        } else if (as.Date(date_crag1) >= as.Date(data.consult) & as.Date(date_crag1) < as.Date(data.prox.consul)  ) {
+        } else if (as.Date(date_crag1) >= as.Date(data.consult) & as.Date(date_crag1) < as.Date(data_prox_consult)  ) {
           print(paste0(pat.nid, " resultado  TB crag :",tb_crag1))
           if(tb_crag2=="Negative"){
             return(value_coded_negativo)
@@ -337,7 +353,7 @@ check_lab_tb_crag <- function(pat.nid, data.consult,data.prox.consul){
         }
         
       } else { # only crag1 available
-        if (as.Date(date_crag1) >= as.Date(data.consult) & as.Date(date_crag1) < as.Date(data.prox.consul)  ) {
+        if (as.Date(date_crag1) >= as.Date(data.consult) & as.Date(date_crag1) < as.Date(data_prox_consult)  ) {
           print(paste0(pat.nid, " resultado  TB crag :",tb_crag1))
           if(tb_crag1=="Negative"){
             return(value_coded_negativo)
