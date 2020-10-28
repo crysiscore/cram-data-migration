@@ -1,5 +1,8 @@
 #Global variables
-default_location = "0dc2d9c3-91ff-4a87-b2d1-84d2955bd9cb"
+# change this parameters to match openmrs uuids
+default_location = "ca55e5d1-91ec-477b-a6c5-7574142c5086"   # change here
+nid_cram_identifier_type <- '1c72703d-fb55-439e-af4f-ef39a1049e19' #NID CRAM UUID ( change this to match openmrs uuid)
+
 generic_provider = "7013d271-1bc2-4a50-bed6-8932044bc18f"
 encounter_type_ficha_resumo = 'e422ecf9-75dd-4367-b21e-54bccabc4763'
 encounter_type_ficha_clinica_adulto = 'e278f956-1d5f-11e0-b929-000c29ad1d07'
@@ -11,7 +14,7 @@ form_ficha_resumo        <- '05496c70-845c-40b1-9d28-070f67b3f7da'
 form_ficha_clinica       <- '3c2d563a-5d37-4735-a125-d3943a3de30a'
 form_fila_uuid           <- '49857ace-1a92-4980-8313-1067714df151'
 form_lab                  <- '8377e4ff-d0fe-44a5-81c3-74c9040fd5f8'
-nid_cram_identifier_type <- 'b4fedbc2-f1fb-4ac0-8dcb-6291e450bb08' #NID CRAM UUID
+
 attribute_telephone_uuid <- "e2e3fd64-1d5f-11e0-b929-000c29ad1d07"
 
 program_tarv_uuid <- 'efe2481f-9e75-4515-8d5a-86bfde2b5ad3'

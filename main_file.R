@@ -288,7 +288,7 @@ for (i in 1:nrow(created_patients) ) {
    df_fila_logs_tmp <- df_ficha_clinica_logs
    df_fila_logs <- df_ficha_clinica_logs
    
-   for (pat_index in 248:nrow(created_patients)) {
+   for (pat_index in 1:nrow(created_patients)) {
       
       pat.nid <- created_patients$nid[pat_index]
       uuid <- created_patients$openmrs_status[pat_index]
@@ -377,7 +377,7 @@ for (i in 1:nrow(created_patients) ) {
    df_lab_logs <- df_lab_logs[1:1,]
    df_lab_logs_tmp  <- df_lab_logs
 
-   for (j in 4:nrow(created_patients) ){
+   for (j in 1:nrow(created_patients) ){
       
       pat.nid <- created_patients$nid[j]
       patient <- created_patients$openmrs_status[j]
