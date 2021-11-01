@@ -1,7 +1,11 @@
 #Global variables
 # change this parameters to match openmrs uuids
-default_location = "ca55e5d1-91ec-477b-a6c5-7574142c5086"   # change here
+default_location = "0dc2d9c3-91ff-4a87-b2d1-84d2955bd9cb"   # change here
 nid_cram_identifier_type <- '1c72703d-fb55-439e-af4f-ef39a1049e19' #NID CRAM UUID ( change this to match openmrs uuid)
+
+# API user
+migration_user <- "cram"
+migration_passwd <-"eSaude123"
 
 generic_provider = "7013d271-1bc2-4a50-bed6-8932044bc18f"
 encounter_type_ficha_resumo = 'e422ecf9-75dd-4367-b21e-54bccabc4763'
@@ -26,7 +30,8 @@ programa_tarv_work_flow <- '7f3af436-5c3a-447c-9012-42bb314e03db'
 #value codes
 value_coded_pcr                 <- 'e1d800dc-1d5f-11e0-b929-000c29ad1d07' 
 value_coded_tr                  <- 'e1d7f61e-1d5f-11e0-b929-000c29ad1d07'
-value_coded_yes                 <- 'e1d81b62-1d5f-11e0-b929-000c29ad1d07'
+#value_coded_yes                 <- 'e1d81b62-1d5f-11e0-b929-000c29ad1d07'
+value_coded_yes                 <- '1065AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
 value_coded_em_tarv             <- '7f3af436-5c3a-447c-9012-42bb314e03db'
 value_coded_inicia              <- 'e1d9ef28-1d5f-11e0-b929-000c29ad1d07'
 value_coded_continua            <- 'e1d9f036-1d5f-11e0-b929-000c29ad1d07'
@@ -38,7 +43,7 @@ value_coded_terceira_linha      <- 'ade7656f-0ce3-461b-b7d8-121932dcd6a2'
 value_coded_positivo            <- 'e1d47386-1d5f-11e0-b929-000c29ad1d07'
 value_coded_negativo            <- 'e1d446cc-1d5f-11e0-b929-000c29ad1d07'
 
-#Ficha Resumo concepts
+# Ficha Resumo concepts
 concept_fr_data_abertura_ficha  <- '68d65d0c-8fee-456b-8e95-caed990351e1'
 concept_fr_profissao            <- 'e1dc07c2-1d5f-11e0-b929-000c29ad1d07'
 concept_fr_transferido_outra_us <- 'e1da7d3a-1d5f-11e0-b929-000c29ad1d07'
@@ -51,11 +56,13 @@ concept_fr_estadio              <- 'e1e53c02-1d5f-11e0-b929-000c29ad1d07'
 concept_fr_cd4                  <- '596e9d7c-1a17-4177-b4fb-76341dbee9dd'
 concept_fr_carga_viral          <- 'e1d6247e-1d5f-11e0-b929-000c29ad1d07'
 
+#Ficha Clinica concepts 
+#concept_fc_weight              <- 'e1e2e826-1d5f-11e0-b929-000c29ad1d07'  openmrs v1.16
+concept_fc_weight               <- '5089AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'  # openmrs v2.3.3
+#concept_fc_height               <- 'e1e2e934-1d5f-11e0-b929-000c29ad1d07' openmrs v1.16
+concept_fc_height               <- '5090AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' # openmrs v2.3.3
 
 
-#Ficha Clinica concepts
-concept_fc_weight               <- 'e1e2e826-1d5f-11e0-b929-000c29ad1d07'
-concept_fc_height               <- 'e1e2e934-1d5f-11e0-b929-000c29ad1d07'
 concept_fc_prof_inh             <- 'be4a76ca-662a-4c39-903b-71983f5f67c9'
 concept_fc_pof_ctz              <- '2616b3c9-9a99-4b9a-b673-10871f4a4c71'
 concept_fc_hivload_qualitativa  <- 'e1da2704-1d5f-11e0-b929-000c29ad1d07'

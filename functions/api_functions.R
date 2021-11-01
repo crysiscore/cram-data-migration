@@ -18,7 +18,7 @@ checkPatientUuidExistsOpenMRS <- function(patient.uuid) {
   
   url.check.patient <- paste0(base.url,'patient/',patient.uuid)
   
-  status <- content(GET(url.check.patient, authenticate('admin', 'eSaude123')), as = "parsed")
+  status <- content(GET(url.check.patient, authenticate(migration_user, migration_passwd)), as = "parsed")
   
   if("error" %in% names(status)){
     if(status$error$message =="Object with given uuid doesn't exist" ){
@@ -53,7 +53,7 @@ apiCreateOpenmrsPatient <- function(json.patient){
   base.url <- str_c(base.url,'patient')
 
   # send patient to openmrs
-  status <- POST(url = base.url, body = json.patient, config=authenticate('admin', 'eSaude123'),  add_headers("Content-Type"="application/json") )
+  status <- POST(url = base.url, body = json.patient, config=authenticate(migration_user, migration_passwd),  add_headers("Content-Type"="application/json") )
   status
  
 }
@@ -76,7 +76,7 @@ apiCreateOpenmrsFichaResumo <- function(json.ficharesumo){
   base.url <- str_c(base.url,'encounter')
   
   # send patient to openmrs
-  status <- POST(url = base.url, body = json.ficharesumo, config=authenticate('admin', 'eSaude123'),  add_headers("Content-Type"="application/json") )
+  status <- POST(url = base.url, body = json.ficharesumo, config=authenticate(migration_user, migration_passwd),  add_headers("Content-Type"="application/json") )
   status
   
 }
@@ -99,7 +99,7 @@ apiCreateOpenmrsFichaClinica <- function(json.ficha.clinica){
   base.url <- str_c(base.url,'encounter')
   
   # send patient to openmrs
-  status <- POST(url = base.url, body = json.ficha.clinica, config=authenticate('admin', 'eSaude123'),  add_headers("Content-Type"="application/json") )
+  status <- POST(url = base.url, body = json.ficha.clinica, config=authenticate(migration_user, migration_passwd),  add_headers("Content-Type"="application/json") )
   status
   
 }
@@ -124,7 +124,7 @@ apiCreateOpenmrsFila <- function(json.fila){
   
   # send patient to openmrs
   status <- POST(url = base.url,
-                 body = json.fila, config=authenticate('admin', 'eSaude123'),
+                 body = json.fila, config=authenticate(migration_user, migration_passwd),
                  add_headers("Content-Type"="application/json") )
   status
   
@@ -144,7 +144,7 @@ apiCreateProgramEnrollment <- function(json.enrollment){
   
   # send patient to openmrs
   status <- POST(url = base.url,
-                 body = json.enrollment, config=authenticate('admin', 'eSaude123'),
+                 body = json.enrollment, config=authenticate(migration_user, migration_passwd),
                  add_headers("Content-Type"="application/json") )
   content(status)
   
@@ -171,7 +171,7 @@ apiCreateOpenmrsLab <- function(json.lab){
   
   # send patient to openmrs
   status <- POST(url = base.url,
-                 body = json.lab, config=authenticate('admin', 'eSaude123'),
+                 body = json.lab, config=authenticate(migration_user, migration_passwd),
                  add_headers("Content-Type"="application/json") )
   status
   

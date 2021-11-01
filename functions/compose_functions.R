@@ -139,20 +139,29 @@ composeFichaResumo <- function(df.visits,pat.nid,openmrs.pat.uuid) {
       tipo_teste_hiv <- value_coded_pcr
     }
     
-    profissao           <- pat$prof[1]
-    if (profissao=="."){
-      obs_prof <- "" #TODO um bloco para tratar valores NA
+
+
+    if(!is.na(pat$prof[1])){
+      profissao           <- pat$prof[1]
+      if (profissao=="."){
+        obs_prof <- "" #TODO um bloco para tratar valores NA
+      } else {
+        profissao <-  iconv(profissao, from = 'UTF-8', to = 'ASCII//TRANSLIT')
+        obs_prof <-paste0(", { \"person\":\"",  patient  ,"\"," ,
+                          "\"concept\":\"", concept_fr_profissao,"\"," ,
+                          "\"obsDatetime\":\"", obs_date_time,"\"," ,
+                          "\"value\":\"", profissao,"\"" ,
+                          "}")
+      }
     } else {
-      profissao <-  iconv(profissao, from = 'UTF-8', to = 'ASCII//TRANSLIT')
-      obs_prof <-paste0(", { \"person\":\"",  patient  ,"\"," ,
-                        "\"concept\":\"", concept_fr_profissao,"\"," ,
-                        "\"obsDatetime\":\"", obs_date_time,"\"," ,
-                        "\"value\":\"", profissao,"\"" ,
-                        "}")
+      
+      obs_prof <- ""
     }
     
+
+    
     us_proveniencia     <- pat$entry[1]
-    if(us_proveniencia=="."){
+    if(us_proveniencia=="." | is.na(us_proveniencia)){
       
       obs_transferido_with_us_transf <- paste0(   ", { \"person\":\"",  patient  ,"\"," ,
                                                   "\"concept\":\"", concept_fr_transferido_outra_us,"\"," ,
@@ -675,7 +684,7 @@ composeFichaClinica<- function(df.visits,openmrs.pat.uuid) {
 
 composeFila<- function(df.visits,openmrs.pat.uuid) {
   
-  index=1 # 1 line = 1 visit
+  index=1 # 1st line = 1 visit
   pat <- df.visits
   
   #visit_atributes
@@ -683,6 +692,7 @@ composeFila<- function(df.visits,openmrs.pat.uuid) {
   next_visit_date  <- pat$datnext[index]
   
   encounter_date_datime <- visit_date
+  obs_date_time <- visit_date
   #openmrs.pat.uuid = created_patients$openmrs_status[which(created_patients$nid==23465)]
   nidUuid = openmrs.pat.uuid
   
@@ -695,9 +705,7 @@ composeFila<- function(df.visits,openmrs.pat.uuid) {
     
   }
   
-  #encounter_date_datime <- paste0(visit_date," 11:37:31" )
-  encounter_date_datime <- visit_date
-  obs_date_time <- visit_date
+ 
   
   obs_next_pickup_date <- paste0( ", { \"person\":\"",  nidUuid  ,"\"," ,
                                   "\"concept\":\"", returnVisitUuid,"\"," ,
@@ -747,7 +755,7 @@ composeLab <- function(patient.uuid,df.lab ){
         
         encounter_datetime <- as.character(as.Date(examen))
         
-        alat     <- df.lab[[paste0("alat",i)]][index]      # Alanina Aminotransferase 
+        alat     <- df.lab[[paste0("alat",i)]][index]     # Alanina Aminotransferase 
         hbsag    <- df.lab[[paste0("hbsag",i)]][index]    # Hepatites b antigen s
         creatui  <- df.lab[[paste0("creatui",i)]][index]  # Creatinine umol/L
         lc       <- df.lab[[paste0("lc",i)]][index]       # Linfocitos
@@ -880,6 +888,47 @@ composeLab <- function(patient.uuid,df.lab ){
     
   }
   
+  
+}
+
+
+composeFilaV2<- function(uuid,visit.date,next.visit.date, regimeuuid ) {
+  
+  #visit_atributes
+  visit_date       <-visit.date
+  next_visit_date  <- next.visit.date
+  encounter_date_datime <- visit.date
+  obs_date_time <- visit.date
+  
+  #openmrs.pat.uuid = created_patients$openmrs_status[which(created_patients$nid==23465)]
+  nidUuid = uuid
+  regime <- regimeuuid
+
+  obs_next_pickup_date <- paste0( ", { \"person\":\"",  nidUuid  ,"\"," ,
+                                  "\"concept\":\"", returnVisitUuid,"\"," ,
+                                  "\"obsDatetime\":\"", obs_date_time,"\"," ,
+                                  "\"comment\":\"CRAM\" ," ,
+                                  "\"value\":\"", next_visit_date,"\"" ,
+                                  "}")
+
+  encounter_details <- paste0( "\"encounterDatetime\":\"",encounter_date_datime, "\" ," ,
+                               "\"patient\":\"",          nidUuid , "\" ," ,
+                               "\"form\":\"",             form_fila_uuid , "\" ," ,
+                               "\"encounterType\":\"",    encounter_type_fila,"\" , " ,  
+                               "\"location\":\"",         default_location, "\", " ,
+                               "\"encounterProviders\":[{ \"provider\":\"", generic_provider  ,"\"," ,
+                               "\"encounterRole\":\"" , encounter_provider_role,"\"" , "}] ,",
+                               "\"obs\":[ { \"person\":\"",  nidUuid  ,"\"," ,
+                               "\"concept\":\"", concept_fila_regime,"\"," ,
+                               "\"obsDatetime\":\"", obs_date_time,"\"," ,
+                               "\"comment\":\"CRAM\" ," ,
+                               "\"value\":\"", regime,"\"" ,
+                               "}" )
+  
+  joined_encounter_obs <- paste0(encounter_details,obs_next_pickup_date)
+  
+  encounter <- paste0("{ ", joined_encounter_obs, " ] }")
+  return(encounter)
   
 }
 
