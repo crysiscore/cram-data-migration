@@ -1,7 +1,8 @@
 #Global variables
 # change this parameters to match openmrs uuids
-default_location = "0dc2d9c3-91ff-4a87-b2d1-84d2955bd9cb"   # change here
-nid_cram_identifier_type <- '1c72703d-fb55-439e-af4f-ef39a1049e19' #NID CRAM UUID ( change this to match openmrs uuid)
+default_location = "aefc77cd-016e-4621-9d77-22443c502493"   # change here CRAM Location
+nid_cram_identifier_type <- '1c72703d-fb55-439e-af4f-ef39a1049e19' #NID CRAM UUID ( Identificador para pacientes que migraram do banco de dados MSF CRAM para EPTS para permitir a retenção do CRAM ID que foi atribuído ao paciente.Este é um valor numérico que pode ser inserido manualmente)
+nid_misau_identifier_type <- 'e2b966d0-1d5f-11e0-b929-000c29ad1d07' #NID (SERVICO TARV)
 
 # API user
 migration_user <- "cram"

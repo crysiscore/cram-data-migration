@@ -21,7 +21,7 @@ source('functions/compose_functions.R')
 
 # Import fuchia long dataset
 # patient_data <- read.csv(file = 'data/patientlong.csv',stringsAsFactors = FALSE, na.strings=c("."))
-patient_data <- read.csv(file = 'data/export_long1.csv',stringsAsFactors = FALSE, na.strings=c("."))
+patient_data <- read.csv(file = 'data/long_export.csv',stringsAsFactors = FALSE, na.strings=c("."))
 #patient_data <- read.csv(file = 'data/', stringsAsFactors = FALSE, na.strings=c("."))
 
 # Filtrar os activos
@@ -77,6 +77,12 @@ names(patient_admissions)[8] <- "idade"
 names(patient_admissions)[9] <- "sexo"
 names(patient_admissions)[10] <- "bairro"
 names(patient_admissions)[11] <- "telefone"
+
+# NIDS MISAU
+nid_misau_cram <- readxl::read_xlsx(path = 'data/NID_MISAU_CRAM.xlsx',sheet = 1,col_names = TRUE)
+names(nid_misau_cram)[1] <- "cram_id"
+names(nid_misau_cram)[2] <- "nid_misau"
+names(nid_misau_cram)[6] <- "telefone"
 
 nids_activos <- unique(nids)
 patient_admissions <- patient_admissions %>% filter(nid %in% nids_activos)
@@ -186,6 +192,15 @@ for(i in 1:nrow(patient_admissions)){
 
 #Add status column
 patient_admissions$openmrs_status <- ""
+
+
+patient_admissions <- patient_admissions %>% left_join(nid_misau_cram, by =  c("nid" = "cram_id")) %>% 
+   select(nid,nid_misau.y,given_name , middle_name ,family_name ,sexo,age,
+          datbirth,telefone.x,bairro,Referidode ,openmrs_status,uuid)
+
+names(patient_admissions)[2] <- "nid_misau"
+names(patient_admissions)[9] <- "telefone"
+
 
 
 df_patient_logs  <- createLogsDataFrame(nrow(patient_admissions))
