@@ -11,10 +11,10 @@ patient_visits$entry <- iconv(patient_visits$entry, "latin1", "UTF-8",sub='')
 
 
 # converter datas string para datas
-patient_visits$datvisit <- as.Date(patient_visits$datvisit,"%d%B%Y")
-patient_visits$datnext  <- as.Date(patient_visits$datnext, "%d%B%Y")
-patient_visits$hivdate    <- as.Date(patient_visits$hivdate,   "%d%B%Y")
-patient_visits$examen    <- as.Date(patient_visits$examen,   "%d%B%Y")
+patient_visits$datvisit <- as.Date(patient_visits$datvisit,"%m/%d/%Y")
+patient_visits$datnext  <- as.Date(patient_visits$datnext,"%m/%d/%Y")
+patient_visits$hivdate    <- as.Date(patient_visits$hivdate,  "%m/%d/%Y")
+patient_visits$examen    <- as.Date(patient_visits$examen, "%d-%b-%y")
 
 # uniformizar TESTE HIV
 patient_visits$hivtest [which(patient_visits$hivtest=="Serology")] <- "TR"

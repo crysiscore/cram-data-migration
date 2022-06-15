@@ -47,6 +47,7 @@ patient <- getIdartData(con_local,paste0(' select * from patient where patientid
 
 
 vec_pat <- ""
+
 for (t in 1:nrow(patient)) {
   
   vec_pat<- paste0(vec_pat,", '", patient$patientid[t], "'  ")
@@ -95,6 +96,7 @@ nids_criados <- created_patients$nid
 
 
 tmp = dplyr::filter(levantamentos, patientid %in% nids_criados )
+
 # outro regime
 tmp$regimenomeespecificado[which(tmp$regimenomeespecificado=='') ] <-'e1e59e0e-1d5f-11e0-b929-000c29ad1d07'
 tmp$dateexpectedstring  <- as.Date(tmp$dateexpectedstring ,   "%d %B %Y")
@@ -119,11 +121,9 @@ for (it in 1:nrow(tmp) ) {
 
 
 vec_nids_fila <- unique(tmp$patientid)
-
 df_fila_logs <- createLogsDataFrame(nrow(tmp))
 df_fila_logs <- df_fila_logs[1:1,]
 df_fila_logs_tmp  <- df_fila_logs
-
 
 
 for (var in 1:length(vec_nids_fila)) {

@@ -107,10 +107,11 @@ for (v in 1:nrow(patient_admissions)) {
    
 }
 
-patient_visits$birth    <- as.Date(patient_visits$birth,   "%d%B%Y")
-patient_visits$datbirth    <- as.Date(patient_visits$datbirth,   "%d%B%Y")
-patient_admissions$birthdate <- as.Date(patient_admissions$birthdate ,   "%d%B%Y")
-patient_admissions$datbirth <- as.Date(patient_admissions$datbirth ,   "%d%B%Y")
+
+patient_visits$birth    <- as.Date(patient_visits$birth,   "%m/%d/%Y")
+patient_visits$datbirth    <- as.Date(patient_visits$datbirth,   "%m/%d/%Y")
+patient_admissions$birthdate <- as.Date(patient_admissions$birthdate ,   "%m/%d/%Y")
+patient_admissions$datbirth <- as.Date(patient_admissions$datbirth ,   "%m/%d/%Y")
 
 # Excluir pacientes com nomes vazios (temp)
 wout_names         <- filter(patient_admissions,is.na(nome_apelido))
@@ -201,13 +202,18 @@ patient_admissions <- patient_admissions %>% left_join(nid_misau_cram, by =  c("
 names(patient_admissions)[2] <- "nid_misau"
 names(patient_admissions)[9] <- "telefone"
 
-
+# Pacientes com data errada de nascimento (1 pacientes de 94 anos 1927-01-01)
+patient_admissions$datbirth[which(patient_admissions$datbirth > '2021-11-12')] <- as.Date('1927-01-01')
+# Paciente sem nome
+patient_admissions$given_name[966]<- "Augusto"
+patient_admissions$middle_name[966]<- "Alfredo"
+patient_admissions$given_name[1056]<- "Filomena"
 
 df_patient_logs  <- createLogsDataFrame(nrow(patient_admissions))
 
 # Migrate patients nrow(patient_admissions) 
 # TODO
-for (i in 1:nrow(patient_admissions)  ) {
+for (i in 1:nrow(patient_admissions)  ){
   
    nid <- patient_admissions$nid[i]
    uuid <- patient_admissions$uuid[i]
@@ -233,12 +239,30 @@ for (i in 1:nrow(patient_admissions)  ) {
       content <- content(status)
       df_patient_logs$api_status_code[i] <- as.integer(status$status_code)
       df_patient_logs$message[i] <- content$error$message
-      if(content$error$message=="Invalid Submission"){
-         df_patient_logs$detail[i] <- content$error$code
-         print("-- ----------------------------------------------------------------")
-         print(paste0("NID: " ,nid, " Nao foi inserido no OpenMRS. O erro foi gravado na pasta errors"))
-         print(paste0("NID: " ,nid))
-         save( content, file =paste0("errors/",nid,"_content_error_rest_api_submission.RData") )
+      df_patient_logs$detail[i] <- content$error$code
+         if(content$error$message=="Invalid Submission"){
+         if(grepl(pattern = 'sendo usado por um outro paciente', x = content$error$globalErrors[[1]]$message, ignore.case =TRUE)){
+            patient_admissions$nid_misau[i] <- NA
+            json_patient <- composePatient(patient_admissions,i)
+            status       <- apiCreateOpenmrsPatient(json_patient)
+            if(as.integer(status$status_code)==201 | as.integer(status$status_code) == 204) {
+               df_patient_logs$api_status_code[i] <- as.integer(status$status_code)
+               df_patient_logs$message[i] <- "sucess"
+               content <- content(status)
+               patient_admissions$openmrs_status[i] <- content$person$uuid
+               df_patient_logs$detail[i] <- "Paciente com NID existente no OpenMRS"
+               
+            } 
+            
+         }else {
+            print("-- ----------------------------------------------------------------")
+            print(paste0("NID: " ,nid, " Nao foi inserido no OpenMRS. O erro foi gravado na pasta errors"))
+            print(paste0("NID: " ,nid))
+            save( content, file =paste0("errors/",nid,"_content_error_rest_api_submission.RData") )
+            
+         }
+
+         
       } else {
          df_patient_logs$detail[i] <- content$error$detail
       }
@@ -456,7 +480,7 @@ for(pat_index in 1:nrow(created_patients)) {
             #examen       <-  df.lab[[paste0("examen",i)]][index]
             if( !is.null(df.lab[[paste0("examen",i)]][index])) {
                
-               examen       <-  as.Date(df.lab[[paste0("examen",i)]][index],format = '%m/%d/%Y')
+               examen       <-  as.Date(df.lab[[paste0("examen",i)]][index],format =  '%d%b%Y')
                
                if(  !is.na(examen) ) {  # no more lab requests
                   

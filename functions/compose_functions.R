@@ -53,6 +53,7 @@ composePatient <- function(df, index){
   #age <- patient_admissions$idade[index] ( we have datbirth var)
   birth_date <- as.character(patient_admissions$datbirth[index])
   nid_cram <-patient_admissions$nid[index]
+  nid_misau <- patient_admissions$nid_misau[index]
   telephone <- patient_admissions$telefone[index]
 
   
@@ -70,13 +71,26 @@ composePatient <- function(df, index){
     
     
     #TODO - mudar nidcram por patient_id 
-    pat<- paste0( "{\"display\":\"",nid_cram ," - ",display,"\"," ,
-                  "\"identifiers\": [{\"identifier\": \"",    nid_cram,"\",",
-                  "\"identifierType\":\"",nid_cram_identifier_type,"\"," ,  
-                  "\"location\":\"",      default_location,"\"," ,
-                  "\"preferred\": true", "}]," ) 
+    if(!is.na(nid_misau)){
+      pat<- paste0( "{\"display\":\"",nid_cram ," - ",display,"\"," ,
+                    "\"identifiers\": [{\"identifier\": \"",    nid_cram,"\",",
+                    "\"identifierType\":\"",nid_cram_identifier_type,"\"," ,  
+                    "\"location\":\"",      default_location,"\"," ,
+                    "\"preferred\": true", "} , {\"identifier\": \"",    nid_misau,"\",",
+                    "\"identifierType\":\"",nid_misau_identifier_type,"\"," ,  
+                    "\"location\":\"",      default_location,"\"," ,
+                    "\"preferred\": false", "}]," ) 
+    } else {
+      pat<- paste0( "{\"display\":\"",nid_cram ," - ",display,"\"," ,
+                    "\"identifiers\": [{\"identifier\": \"",    nid_cram,"\",",
+                    "\"identifierType\":\"",nid_cram_identifier_type,"\"," ,  
+                    "\"location\":\"",      default_location,"\"," ,
+                    "\"preferred\": true", "}]," ) 
+    }
+
     
-  } else {
+  } 
+  else {
     
     
     person <- paste0(" \"person\": { \"uuid\":\"", uuid,"\"," ,
@@ -86,13 +100,22 @@ composePatient <- function(df, index){
                      addresses,
                      "} }" ) 
     
-    
-    #TODO - mudar nidcram por patient_id 
-    pat<- paste0( "{\"display\":\"",nid_cram ," - ",display,"\"," ,
-                  "\"identifiers\": [{\"identifier\": \"",    nid_cram,"\",",
-                  "\"identifierType\":\"",nid_cram_identifier_type,"\"," ,  
-                  "\"location\":\"",      default_location,"\"," ,
-                  "\"preferred\": true", "}]," ) 
+    if(!is.na(nid_misau)){
+      pat<- paste0( "{\"display\":\"",nid_cram ," - ",display,"\"," ,
+                    "\"identifiers\": [{\"identifier\": \"",    nid_cram,"\",",
+                    "\"identifierType\":\"",nid_cram_identifier_type,"\"," ,  
+                    "\"location\":\"",      default_location,"\"," ,
+                    "\"preferred\": true", "} , {\"identifier\": \"",    nid_misau,"\",",
+                    "\"identifierType\":\"",nid_misau_identifier_type,"\"," ,  
+                    "\"location\":\"",      default_location,"\"," ,
+                    "\"preferred\": false", "}]," ) 
+    } else {
+      pat<- paste0( "{\"display\":\"",nid_cram ," - ",display,"\"," ,
+                    "\"identifiers\": [{\"identifier\": \"",    nid_cram,"\",",
+                    "\"identifierType\":\"",nid_cram_identifier_type,"\"," ,  
+                    "\"location\":\"",      default_location,"\"," ,
+                    "\"preferred\": true", "}]," ) 
+    }
     
     
   }

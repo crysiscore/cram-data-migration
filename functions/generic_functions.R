@@ -333,21 +333,27 @@ check_lab_tb_crag <- function(pat.nid, data.consult,data.prox.consul){
         
         if(as.Date(date_crag2) >= as.Date(data.consult) & as.Date(date_crag2) < as.Date(data_prox_consult)  ) {
           print(paste0(pat.nid, " resultado  TB crag :",tb_crag2))
-          if(tb_crag2=="Negative"){
-            return(value_coded_negativo)
-          } else {
-            return(value_coded_positivo)
+          if(!is.na(tb_crag2)){
+            if(tb_crag2=="Negative"){
+              return(value_coded_negativo)
+            } else {
+              return(value_coded_positivo)
+              
+            }
             
-          }
-          
+          } 
+   
         } else if (as.Date(date_crag1) >= as.Date(data.consult) & as.Date(date_crag1) < as.Date(data_prox_consult)  ) {
           print(paste0(pat.nid, " resultado  TB crag :",tb_crag1))
-          if(tb_crag2=="Negative"){
-            return(value_coded_negativo)
-          } else {
-            return(value_coded_positivo)
-            
+          if(!is.na(tb_crag1)){
+            if(tb_crag1=="Negative"){
+              return(value_coded_negativo)
+            } else {
+              return(value_coded_positivo)
+              
+            }
           }
+       
         } else {
           return(NA) #no crag info
         }
@@ -355,21 +361,28 @@ check_lab_tb_crag <- function(pat.nid, data.consult,data.prox.consul){
       } else { # only crag1 available
         if (as.Date(date_crag1) >= as.Date(data.consult) & as.Date(date_crag1) < as.Date(data_prox_consult)  ) {
           print(paste0(pat.nid, " resultado  TB crag :",tb_crag1))
-          if(tb_crag1=="Negative"){
-            return(value_coded_negativo)
-          } else {
-            return(value_coded_positivo)
+          if(!is.na(tb_crag1)){
+            if(tb_crag1=="Negative"){
+              return(value_coded_negativo)
+            } else {
+              return(value_coded_positivo)
+            }
+            
           }
-        } else {
-          return(NA) #no crag info
-        }
+          else {
+          return(NA) #no crag info 
+            }
       }
-      
-    } else{
+        else{
       return(NA) #no crag info
     }
     
-  } else {
+  }
+      
+    }else {
+      return(NA) }
+    
+    } else {
     return(NA) }
   
   
